@@ -1,6 +1,7 @@
 <script>
     import { api } from '$lib/api.js';
     import { goto } from '$app/navigation';
+    import { browser } from '$app/environment';
     import Button from '$lib/components/ui/button.svelte';
     import Card from '$lib/components/ui/card.svelte';
     import CardContent from '$lib/components/ui/card-content.svelte';
@@ -14,10 +15,13 @@
     let email = '';
     let password = '';
     let error = '';
+    let resetStatus = '';
+    let resetType = 'info';
     let submitting = false;
 
     async function login() {
         error = '';
+        resetStatus = '';
         if (!email.trim() || !password) {
             error = 'Enter your email and password.';
             return;
@@ -32,10 +36,31 @@
             submitting = false;
         }
     }
+
+    async function requestReset() {
+        error = '';
+        resetStatus = '';
+        resetType = 'info';
+        if (!email.trim()) {
+            resetStatus = 'Enter your email to receive a reset link.';
+            resetType = 'error';
+            return;
+        }
+        try {
+            const redirectTo = browser ? `${window.location.origin}/officer/login` : undefined;
+            await api.requestPasswordReset(email.trim(), redirectTo);
+            resetStatus = 'Check your email for a reset link.';
+            resetType = 'success';
+        } catch (err) {
+            resetStatus = err instanceof Error ? err.message : 'Reset failed.';
+            resetType = 'error';
+        }
+    }
+
 </script>
 
-<main class="min-h-screen bg-muted/40 flex items-center justify-center px-4 py-10">
-    <Card class="w-full max-w-md">
+<main class="min-h-screen bg-muted/40 px-4 py-10">
+    <Card class="mx-auto w-full max-w-md">
         <CardHeader>
             <CardTitle>Officer Login</CardTitle>
             <CardDescription>Use your officer account to manage inventory.</CardDescription>
@@ -50,6 +75,7 @@
                         type="email"
                         bind:value={email}
                         autocomplete="username"
+                        autofocus
                         required
                     />
                 </div>
@@ -65,12 +91,33 @@
                     />
                 </div>
             </CardContent>
-            <CardFooter class="flex flex-col gap-3">
+            <CardFooter class="flex flex-col items-start gap-3 text-left">
                 <Button class="w-full" type="submit" disabled={submitting}>
                     {submitting ? 'Signing in...' : 'Login'}
                 </Button>
+                <div class="flex w-full flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+                    <a class="text-primary underline-offset-4 hover:underline" href="/officer/signup">
+                        No account? Sign Up
+                    </a>
+                    <button
+                        type="button"
+                        class="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                        on:click={requestReset}
+                    >
+                        Forgot Password?
+                    </button>
+                </div>
                 {#if error}
                     <p class="text-sm text-destructive" role="status" aria-live="polite">{error}</p>
+                {/if}
+                {#if resetStatus}
+                    <p
+                        class={`text-sm ${resetType === 'error' ? 'text-destructive' : 'text-emerald-600'}`}
+                        role="status"
+                        aria-live="polite"
+                    >
+                        {resetStatus}
+                    </p>
                 {/if}
             </CardFooter>
         </form>

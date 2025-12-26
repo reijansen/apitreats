@@ -78,6 +78,14 @@ export const api = {
         return data.session;
     },
 
+    async requestPasswordReset(email, redirectTo) {
+        assertSupabaseConfigured();
+        const options = redirectTo ? { redirectTo } : undefined;
+        const { error } = await supabase.auth.resetPasswordForEmail(email, options);
+        handleError(error, 'Password reset failed.');
+        return true;
+    },
+
     async getPurchases(params = {}) {
         assertSupabaseConfigured();
         const { date, room_number } = params;
@@ -139,6 +147,21 @@ export const api = {
             .select('*')
             .single();
         handleError(error, 'Failed to create product.');
+        return data;
+    },
+
+    async createOfficerRequest(payload) {
+        assertSupabaseConfigured();
+        const { data, error } = await supabase
+            .from('officer_requests')
+            .insert({
+                name: payload.name,
+                position: payload.position,
+                room_number: payload.room_number,
+            })
+            .select('*')
+            .single();
+        handleError(error, 'Failed to submit request.');
         return data;
     },
 
