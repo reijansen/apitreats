@@ -2,6 +2,12 @@
     import { api } from '$lib/api.js';
     import { connectWebSocket } from '$lib/websocket.js';
     import { onMount } from 'svelte';
+    import Badge from '$lib/components/ui/badge.svelte';
+    import Card from '$lib/components/ui/card.svelte';
+    import CardContent from '$lib/components/ui/card-content.svelte';
+    import CardDescription from '$lib/components/ui/card-description.svelte';
+    import CardHeader from '$lib/components/ui/card-header.svelte';
+    import CardTitle from '$lib/components/ui/card-title.svelte';
 
     let purchases = [];
     let totalSales = 0;
@@ -47,45 +53,62 @@
     function formatTotal(amount) {
         return Number(amount || 0).toFixed(2);
     }
+
+    function statusVariant(status) {
+        if (status === 'connected') return 'secondary';
+        if (status === 'error') return 'destructive';
+        if (status === 'disconnected') return 'outline';
+        return 'default';
+    }
 </script>
 
-<main class="min-h-screen bg-gray-100 p-4">
-    <h1 class="text-2xl font-bold text-center mb-2">Officer Dashboard</h1>
-    <p class="text-center text-gray-600 mb-4">Realtime purchases and totals for today.</p>
-    <div class="text-center text-sm text-gray-500 mb-4">
-        Realtime status: <span class="font-semibold">{realtimeStatus}</span>
-    </div>
-    <p class="text-lg font-semibold text-center mb-4">Total Sales Today: ƒ,ñ{totalSales.toFixed(2)}</p>
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        {#if loading}
-            <p class="text-sm text-gray-500">Loading purchases...</p>
-        {:else if error}
-            <p class="text-sm text-red-600">Could not load purchases: {error}</p>
-        {:else if purchases.length === 0}
-            <p class="text-sm text-gray-600">No purchases yet today.</p>
-        {:else}
-            <table class="w-full table-auto">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="px-4 py-2 text-left">Room</th>
-                        <th class="px-4 py-2 text-left">Product</th>
-                        <th class="px-4 py-2 text-left">Qty</th>
-                        <th class="px-4 py-2 text-left">Total</th>
-                        <th class="px-4 py-2 text-left">Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each purchases as purchase}
-                        <tr class="border-t">
-                            <td class="px-4 py-2">{purchase.room_number}</td>
-                            <td class="px-4 py-2">{purchase.product_name || purchase.product_id}</td>
-                            <td class="px-4 py-2">{purchase.quantity}</td>
-                            <td class="px-4 py-2">ƒ,ñ{formatTotal(purchase.total_amount)}</td>
-                            <td class="px-4 py-2">{formatTime(purchase.created_at)}</td>
-                        </tr>
-                    {/each}
-                </tbody>
-            </table>
-        {/if}
-    </div>
+<main class="min-h-screen bg-muted/40 px-4 py-10">
+    <Card class="mx-auto w-full max-w-5xl">
+        <CardHeader class="gap-2">
+            <CardTitle>Officer Dashboard</CardTitle>
+            <CardDescription>Realtime purchases and totals for today.</CardDescription>
+            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Realtime status</span>
+                <Badge variant={statusVariant(realtimeStatus)}>{realtimeStatus}</Badge>
+            </div>
+        </CardHeader>
+        <CardContent class="space-y-4">
+            <div class="flex items-center justify-between rounded-md border border-border bg-muted/40 px-4 py-3">
+                <span class="text-sm text-muted-foreground">Total sales today</span>
+                <span class="text-lg font-semibold">${totalSales.toFixed(2)}</span>
+            </div>
+            {#if loading}
+                <p class="text-sm text-muted-foreground">Loading purchases...</p>
+            {:else if error}
+                <p class="text-sm text-destructive">Could not load purchases: {error}</p>
+            {:else if purchases.length === 0}
+                <p class="text-sm text-muted-foreground">No purchases yet today.</p>
+            {:else}
+                <div class="overflow-x-auto rounded-md border border-border">
+                    <table class="w-full text-sm">
+                        <thead class="bg-muted/60 text-left">
+                            <tr>
+                                <th class="px-4 py-2 font-medium">Room</th>
+                                <th class="px-4 py-2 font-medium">Product</th>
+                                <th class="px-4 py-2 font-medium">Qty</th>
+                                <th class="px-4 py-2 font-medium">Total</th>
+                                <th class="px-4 py-2 font-medium">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each purchases as purchase}
+                                <tr class="border-t border-border">
+                                    <td class="px-4 py-2">{purchase.room_number}</td>
+                                    <td class="px-4 py-2">{purchase.product_name || purchase.product_id}</td>
+                                    <td class="px-4 py-2">{purchase.quantity}</td>
+                                    <td class="px-4 py-2">${formatTotal(purchase.total_amount)}</td>
+                                    <td class="px-4 py-2">{formatTime(purchase.created_at)}</td>
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
+                </div>
+            {/if}
+        </CardContent>
+    </Card>
 </main>

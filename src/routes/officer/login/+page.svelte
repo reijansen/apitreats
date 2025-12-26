@@ -1,6 +1,15 @@
 <script>
     import { api } from '$lib/api.js';
     import { goto } from '$app/navigation';
+    import Button from '$lib/components/ui/button.svelte';
+    import Card from '$lib/components/ui/card.svelte';
+    import CardContent from '$lib/components/ui/card-content.svelte';
+    import CardDescription from '$lib/components/ui/card-description.svelte';
+    import CardFooter from '$lib/components/ui/card-footer.svelte';
+    import CardHeader from '$lib/components/ui/card-header.svelte';
+    import CardTitle from '$lib/components/ui/card-title.svelte';
+    import Input from '$lib/components/ui/input.svelte';
+    import Label from '$lib/components/ui/label.svelte';
 
     let email = '';
     let password = '';
@@ -25,47 +34,45 @@
     }
 </script>
 
-<main class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-    <form
-        on:submit|preventDefault={login}
-        class="max-w-md w-full bg-white p-6 rounded-lg shadow-md"
-        aria-busy={submitting}
-    >
-        <h1 class="text-2xl font-bold text-center mb-2">Officer Login</h1>
-        <p class="text-center text-gray-600 mb-6">Use your officer account to manage inventory.</p>
-        <label class="block mb-4" for="email-input">
-            <span class="text-gray-700">Email</span>
-            <input
-                id="email-input"
-                name="email"
-                type="email"
-                bind:value={email}
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                autocomplete="username"
-                required
-            >
-        </label>
-        <label class="block mb-4" for="password-input">
-            <span class="text-gray-700">Password</span>
-            <input
-                id="password-input"
-                name="password"
-                type="password"
-                bind:value={password}
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                autocomplete="current-password"
-                required
-            >
-        </label>
-        <button
-            type="submit"
-            class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed"
-            disabled={submitting}
-        >
-            {submitting ? 'Signing in...' : 'Login'}
-        </button>
-        {#if error}
-            <p class="mt-4 text-center text-red-600" role="status" aria-live="polite">{error}</p>
-        {/if}
-    </form>
+<main class="min-h-screen bg-muted/40 flex items-center justify-center px-4 py-10">
+    <Card class="w-full max-w-md">
+        <CardHeader>
+            <CardTitle>Officer Login</CardTitle>
+            <CardDescription>Use your officer account to manage inventory.</CardDescription>
+        </CardHeader>
+        <form on:submit|preventDefault={login} aria-busy={submitting}>
+            <CardContent class="space-y-4">
+                <div class="space-y-2">
+                    <Label for="email-input">Email</Label>
+                    <Input
+                        id="email-input"
+                        name="email"
+                        type="email"
+                        bind:value={email}
+                        autocomplete="username"
+                        required
+                    />
+                </div>
+                <div class="space-y-2">
+                    <Label for="password-input">Password</Label>
+                    <Input
+                        id="password-input"
+                        name="password"
+                        type="password"
+                        bind:value={password}
+                        autocomplete="current-password"
+                        required
+                    />
+                </div>
+            </CardContent>
+            <CardFooter class="flex flex-col gap-3">
+                <Button class="w-full" type="submit" disabled={submitting}>
+                    {submitting ? 'Signing in...' : 'Login'}
+                </Button>
+                {#if error}
+                    <p class="text-sm text-destructive" role="status" aria-live="polite">{error}</p>
+                {/if}
+            </CardFooter>
+        </form>
+    </Card>
 </main>

@@ -53,7 +53,6 @@ with check (true);
 create policy "purchases_insert_public"
 on public.purchases
 for insert
-using (true)
 with check (true);
 
 create policy "purchases_select_authenticated"

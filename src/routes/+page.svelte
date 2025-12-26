@@ -1,6 +1,16 @@
 <script>
     import { api } from '$lib/api.js';
     import { onMount } from 'svelte';
+    import Button from '$lib/components/ui/button.svelte';
+    import Card from '$lib/components/ui/card.svelte';
+    import CardContent from '$lib/components/ui/card-content.svelte';
+    import CardDescription from '$lib/components/ui/card-description.svelte';
+    import CardFooter from '$lib/components/ui/card-footer.svelte';
+    import CardHeader from '$lib/components/ui/card-header.svelte';
+    import CardTitle from '$lib/components/ui/card-title.svelte';
+    import Input from '$lib/components/ui/input.svelte';
+    import Label from '$lib/components/ui/label.svelte';
+    import Select from '$lib/components/ui/select.svelte';
 
     let roomNumber = '';
     let selectedProductId = '';
@@ -65,7 +75,7 @@
                 product_id: selectedProduct.id,
                 quantity: Number(quantity),
             });
-            message = `Thank you! Please pay ƒ,ñ${total.toFixed(2)} to the honesty box.`;
+            message = `Thank you! Please pay $${total.toFixed(2)} to the honesty box.`;
             messageType = 'success';
             roomNumber = '';
             selectedProductId = '';
@@ -93,95 +103,96 @@
     }
 </script>
 
-<main class="min-h-screen bg-gray-100 p-4">
-    <h1 class="text-2xl font-bold text-center mb-2">Honesty Store Purchase</h1>
-    <p class="text-center text-gray-600 mb-6">Select an item and log your purchase.</p>
-    <form
-        on:submit|preventDefault={submitPurchase}
-        class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md"
-        aria-busy={submitting}
-    >
-        <label class="block mb-4" for="room-number">
-            <span class="text-gray-700">Room Number</span>
-            <input
-                id="room-number"
-                name="roomNumber"
-                type="text"
-                bind:value={roomNumber}
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                autocomplete="organization"
-                aria-invalid={fieldErrors.roomNumber ? 'true' : 'false'}
-                aria-describedby={fieldErrors.roomNumber ? 'room-number-error' : undefined}
-                required
-            >
-        </label>
-        {#if fieldErrors.roomNumber}
-            <p id="room-number-error" class="text-sm text-red-600 -mt-2 mb-3">{fieldErrors.roomNumber}</p>
-        {/if}
-        <label class="block mb-4" for="product-select">
-            <span class="text-gray-700">Product</span>
-            <select
-                id="product-select"
-                name="product"
-                bind:value={selectedProductId}
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                aria-invalid={fieldErrors.product ? 'true' : 'false'}
-                aria-describedby={fieldErrors.product ? 'product-error' : undefined}
-                required
-            >
-                <option value="">Select a product</option>
-                {#each Object.entries(groupByCategory(products)) as [category, prods]}
-                    <optgroup label={category}>
-                        {#each prods as product}
-                            <option value={product.id}>{product.name} - ƒ,ñ{product.price || 'N/A'}</option>
+<main class="min-h-screen bg-muted/40 px-4 py-10">
+    <Card class="mx-auto w-full max-w-lg">
+        <CardHeader>
+            <CardTitle>Honesty Store Purchase</CardTitle>
+            <CardDescription>Select an item and log your purchase.</CardDescription>
+        </CardHeader>
+        <form on:submit|preventDefault={submitPurchase} aria-busy={submitting}>
+            <CardContent class="space-y-4">
+                <div class="space-y-2">
+                    <Label for="room-number">Room Number</Label>
+                    <Input
+                        id="room-number"
+                        name="roomNumber"
+                        type="text"
+                        bind:value={roomNumber}
+                        autocomplete="organization"
+                        aria-invalid={fieldErrors.roomNumber ? 'true' : 'false'}
+                        aria-describedby={fieldErrors.roomNumber ? 'room-number-error' : undefined}
+                        required
+                    />
+                    {#if fieldErrors.roomNumber}
+                        <p id="room-number-error" class="text-sm text-destructive">{fieldErrors.roomNumber}</p>
+                    {/if}
+                </div>
+                <div class="space-y-2">
+                    <Label for="product-select">Product</Label>
+                    <Select
+                        id="product-select"
+                        name="product"
+                        bind:value={selectedProductId}
+                        aria-invalid={fieldErrors.product ? 'true' : 'false'}
+                        aria-describedby={fieldErrors.product ? 'product-error' : undefined}
+                        disabled={loadingProducts || !!productsError}
+                        required
+                    >
+                        <option value="">Select a product</option>
+                        {#each Object.entries(groupByCategory(products)) as [category, prods]}
+                            <optgroup label={category}>
+                                {#each prods as product}
+                                    <option value={product.id}>{product.name} - ${product.price || 'N/A'}</option>
+                                {/each}
+                            </optgroup>
                         {/each}
-                    </optgroup>
-                {/each}
-            </select>
-        </label>
-        {#if fieldErrors.product}
-            <p id="product-error" class="text-sm text-red-600 -mt-2 mb-3">{fieldErrors.product}</p>
-        {/if}
-        <label class="block mb-4" for="quantity-input">
-            <span class="text-gray-700">Quantity</span>
-            <input
-                id="quantity-input"
-                name="quantity"
-                type="number"
-                bind:value={quantity}
-                min="1"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                aria-invalid={fieldErrors.quantity ? 'true' : 'false'}
-                aria-describedby={fieldErrors.quantity ? 'quantity-error' : undefined}
-                required
-            >
-        </label>
-        {#if fieldErrors.quantity}
-            <p id="quantity-error" class="text-sm text-red-600 -mt-2 mb-3">{fieldErrors.quantity}</p>
-        {/if}
-        {#if loadingProducts}
-            <p class="text-sm text-gray-500 mb-4">Loading products...</p>
-        {:else if productsError}
-            <p class="text-sm text-red-600 mb-4">Could not load products: {productsError}</p>
-        {:else if products.length === 0}
-            <p class="text-sm text-gray-600 mb-4">No products available. Please check back later.</p>
-        {/if}
-        <p class="text-lg font-semibold mb-4">Total: ƒ,ñ{total.toFixed(2)}</p>
-        <button
-            type="submit"
-            class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed"
-            disabled={submitting || loadingProducts || !!productsError}
-        >
-            {submitting ? 'Submitting...' : 'Submit Purchase'}
-        </button>
-    </form>
-    {#if message}
-        <p
-            class={`mt-4 text-center ${messageType === 'error' ? 'text-red-600' : 'text-green-600'}`}
-            role="status"
-            aria-live="polite"
-        >
-            {message}
-        </p>
-    {/if}
+                    </Select>
+                    {#if fieldErrors.product}
+                        <p id="product-error" class="text-sm text-destructive">{fieldErrors.product}</p>
+                    {/if}
+                </div>
+                <div class="space-y-2">
+                    <Label for="quantity-input">Quantity</Label>
+                    <Input
+                        id="quantity-input"
+                        name="quantity"
+                        type="number"
+                        bind:value={quantity}
+                        min="1"
+                        aria-invalid={fieldErrors.quantity ? 'true' : 'false'}
+                        aria-describedby={fieldErrors.quantity ? 'quantity-error' : undefined}
+                        required
+                    />
+                    {#if fieldErrors.quantity}
+                        <p id="quantity-error" class="text-sm text-destructive">{fieldErrors.quantity}</p>
+                    {/if}
+                </div>
+                {#if loadingProducts}
+                    <p class="text-sm text-muted-foreground">Loading products...</p>
+                {:else if productsError}
+                    <p class="text-sm text-destructive">Could not load products: {productsError}</p>
+                {:else if products.length === 0}
+                    <p class="text-sm text-muted-foreground">No products available. Please check back later.</p>
+                {/if}
+            </CardContent>
+            <CardFooter class="flex flex-col gap-3">
+                <div class="flex w-full items-center justify-between rounded-md border border-border bg-muted/40 px-3 py-2">
+                    <span class="text-sm text-muted-foreground">Total</span>
+                    <span class="text-lg font-semibold">${total.toFixed(2)}</span>
+                </div>
+                <Button class="w-full" type="submit" disabled={submitting || loadingProducts || !!productsError}>
+                    {submitting ? 'Submitting...' : 'Submit Purchase'}
+                </Button>
+                {#if message}
+                    <p
+                        class={`text-center text-sm ${messageType === 'error' ? 'text-destructive' : 'text-emerald-600'}`}
+                        role="status"
+                        aria-live="polite"
+                    >
+                        {message}
+                    </p>
+                {/if}
+            </CardFooter>
+        </form>
+    </Card>
 </main>

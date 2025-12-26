@@ -124,6 +124,24 @@ export const api = {
         return data;
     },
 
+    async createProduct(product) {
+        assertSupabaseConfigured();
+        const payload = {
+            name: product.name,
+            category: product.category,
+            price: product.price,
+            current_stock: product.current_stock ?? 0,
+            is_active: product.is_active ?? true,
+        };
+        const { data, error } = await supabase
+            .from('products')
+            .insert(payload)
+            .select('*')
+            .single();
+        handleError(error, 'Failed to create product.');
+        return data;
+    },
+
     async updateStock(id, payload) {
         assertSupabaseConfigured();
         const { delta, current_stock } = payload;
