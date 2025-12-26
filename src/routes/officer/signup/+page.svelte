@@ -14,6 +14,9 @@
         name: '',
         position: '',
         room_number: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
     };
     let requestStatus = '';
     let requestType = 'info';
@@ -22,30 +25,67 @@
         name: '',
         position: '',
         room_number: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
     };
+    let showPassword = false;
+    let showConfirmPassword = false;
 
     async function submitRequest() {
         requestStatus = '';
         requestType = 'info';
-        requestErrors = { name: '', position: '', room_number: '' };
+        requestErrors = {
+            name: '',
+            position: '',
+            room_number: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+        };
         if (!request.name.trim()) requestErrors.name = 'Name is required.';
         if (!request.position.trim()) requestErrors.position = 'Position is required.';
         if (!request.room_number.trim()) requestErrors.room_number = 'Room number is required.';
-        if (requestErrors.name || requestErrors.position || requestErrors.room_number) {
+        if (!request.email.trim()) requestErrors.email = 'Email is required.';
+        if (!request.password) requestErrors.password = 'Password is required.';
+        if (request.password && request.password.length < 8) {
+            requestErrors.password = 'Password must be at least 8 characters.';
+        }
+        if (!request.confirmPassword) requestErrors.confirmPassword = 'Confirm your password.';
+        if (request.password && request.confirmPassword && request.password !== request.confirmPassword) {
+            requestErrors.confirmPassword = 'Passwords do not match.';
+        }
+        if (
+            requestErrors.name ||
+            requestErrors.position ||
+            requestErrors.room_number ||
+            requestErrors.email ||
+            requestErrors.password ||
+            requestErrors.confirmPassword
+        ) {
             requestStatus = 'Please complete all required fields.';
             requestType = 'error';
             return;
         }
         try {
             requestSubmitting = true;
-            await api.createOfficerRequest({
+            await api.registerOfficer({
                 name: request.name.trim(),
                 position: request.position.trim(),
                 room_number: request.room_number.trim(),
+                email: request.email.trim(),
+                password: request.password,
             });
             requestStatus = 'Request submitted. We will contact you soon.';
             requestType = 'success';
-            request = { name: '', position: '', room_number: '' };
+            request = {
+                name: '',
+                position: '',
+                room_number: '',
+                email: '',
+                password: '',
+                confirmPassword: '',
+            };
         } catch (err) {
             requestStatus = err instanceof Error ? err.message : 'Request failed.';
             requestType = 'error';
@@ -103,6 +143,132 @@
                     />
                     {#if requestErrors.room_number}
                         <p class="text-sm text-destructive">{requestErrors.room_number}</p>
+                    {/if}
+                </div>
+                <div class="space-y-2">
+                    <Label for="request-email">Email</Label>
+                    <Input
+                        id="request-email"
+                        name="email"
+                        type="email"
+                        bind:value={request.email}
+                        autocomplete="email"
+                        required
+                    />
+                    {#if requestErrors.email}
+                        <p class="text-sm text-destructive">{requestErrors.email}</p>
+                    {/if}
+                </div>
+                <div class="space-y-2">
+                    <Label for="request-password">Password</Label>
+                    <div class="relative">
+                        <Input
+                            id="request-password"
+                            name="password"
+                            type={showPassword ? 'text' : 'password'}
+                            bind:value={request.password}
+                            autocomplete="new-password"
+                            required
+                            class="pr-10"
+                        />
+                        <button
+                            type="button"
+                            class="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                            on:click={() => (showPassword = !showPassword)}
+                            aria-pressed={showPassword}
+                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        >
+                            {#if showPassword}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="h-4 w-4"
+                                >
+                                    <path d="M17.94 17.94A10.4 10.4 0 0 1 12 20c-5 0-9.27-3.11-11-7.5a12.3 12.3 0 0 1 4.29-5.5"></path>
+                                    <path d="M9.9 4.24A10.4 10.4 0 0 1 12 4c5 0 9.27 3.11 11 7.5a12.3 12.3 0 0 1-4.29 5.5"></path>
+                                    <path d="M14.12 14.12a3 3 0 0 1-4.24-4.24"></path>
+                                    <path d="M1 1l22 22"></path>
+                                </svg>
+                            {:else}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="h-4 w-4"
+                                >
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            {/if}
+                        </button>
+                    </div>
+                    {#if requestErrors.password}
+                        <p class="text-sm text-destructive">{requestErrors.password}</p>
+                    {/if}
+                </div>
+                <div class="space-y-2">
+                    <Label for="request-confirm">Confirm Password</Label>
+                    <div class="relative">
+                        <Input
+                            id="request-confirm"
+                            name="confirmPassword"
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            bind:value={request.confirmPassword}
+                            autocomplete="new-password"
+                            required
+                            class="pr-10"
+                        />
+                        <button
+                            type="button"
+                            class="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                            on:click={() => (showConfirmPassword = !showConfirmPassword)}
+                            aria-pressed={showConfirmPassword}
+                            aria-label={showConfirmPassword ? 'Hide password confirmation' : 'Show password confirmation'}
+                        >
+                            {#if showConfirmPassword}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="h-4 w-4"
+                                >
+                                    <path d="M17.94 17.94A10.4 10.4 0 0 1 12 20c-5 0-9.27-3.11-11-7.5a12.3 12.3 0 0 1 4.29-5.5"></path>
+                                    <path d="M9.9 4.24A10.4 10.4 0 0 1 12 4c5 0 9.27 3.11 11 7.5a12.3 12.3 0 0 1-4.29 5.5"></path>
+                                    <path d="M14.12 14.12a3 3 0 0 1-4.24-4.24"></path>
+                                    <path d="M1 1l22 22"></path>
+                                </svg>
+                            {:else}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="h-4 w-4"
+                                >
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            {/if}
+                        </button>
+                    </div>
+                    {#if requestErrors.confirmPassword}
+                        <p class="text-sm text-destructive">{requestErrors.confirmPassword}</p>
                     {/if}
                 </div>
             </CardContent>

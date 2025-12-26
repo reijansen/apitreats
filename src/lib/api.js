@@ -158,10 +158,28 @@ export const api = {
                 name: payload.name,
                 position: payload.position,
                 room_number: payload.room_number,
+                email: payload.email,
             })
             .select('*')
             .single();
         handleError(error, 'Failed to submit request.');
+        return data;
+    },
+
+    async registerOfficer(payload) {
+        assertSupabaseConfigured();
+        const { email, password, name, position, room_number } = payload;
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+        });
+        handleError(error, 'Sign up failed.');
+        await this.createOfficerRequest({
+            name,
+            position,
+            room_number,
+            email,
+        });
         return data;
     },
 
