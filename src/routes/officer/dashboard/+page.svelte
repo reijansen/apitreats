@@ -62,15 +62,21 @@
     }
 </script>
 
-<main class="min-h-screen bg-muted/40 px-4 py-10">
-    <Card class="mx-auto w-full max-w-5xl">
+<section class="space-y-6">
+    <div class="flex flex-col gap-2">
+        <h1 class="text-2xl font-semibold">Officer Dashboard</h1>
+        <p class="text-sm text-muted-foreground">Realtime purchases and totals for today.</p>
+    </div>
+    <Card>
         <CardHeader class="gap-2">
-            <CardTitle>Officer Dashboard</CardTitle>
-            <CardDescription>Realtime purchases and totals for today.</CardDescription>
-            <div class="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>Realtime status</span>
-                <Badge variant={statusVariant(realtimeStatus)}>{realtimeStatus}</Badge>
+            <div class="flex items-center justify-between">
+                <CardTitle>Today</CardTitle>
+                <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>Realtime</span>
+                    <Badge variant={statusVariant(realtimeStatus)}>{realtimeStatus}</Badge>
+                </div>
             </div>
+            <CardDescription>Live updates when new purchases are logged.</CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
             <div class="flex items-center justify-between rounded-md border border-border bg-muted/40 px-4 py-3">
@@ -111,4 +117,4 @@
             {/if}
         </CardContent>
     </Card>
-</main>
+</section>

@@ -163,11 +163,15 @@
     }
 </script>
 
-<main class="min-h-screen bg-muted/40 px-4 py-10">
-    <Card class="mx-auto w-full max-w-6xl">
+<section class="space-y-6">
+    <div class="flex flex-col gap-2">
+        <h1 class="text-2xl font-semibold">Inventory Management</h1>
+        <p class="text-sm text-muted-foreground">Adjust prices, stock, and availability.</p>
+    </div>
+    <Card>
         <CardHeader>
-            <CardTitle>Inventory Management</CardTitle>
-            <CardDescription>Adjust prices, stock, and availability.</CardDescription>
+            <CardTitle>Products</CardTitle>
+            <CardDescription>Manage active items and inventory counts.</CardDescription>
         </CardHeader>
         <CardContent class="space-y-6">
             <div class="flex items-center justify-between rounded-md border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
@@ -313,4 +317,4 @@
             {/if}
         </CardContent>
     </Card>
-</main>
+</section>
