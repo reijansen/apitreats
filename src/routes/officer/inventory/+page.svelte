@@ -9,32 +9,39 @@
     import CardHeader from '$lib/components/ui/card-header.svelte';
     import CardTitle from '$lib/components/ui/card-title.svelte';
     import Input from '$lib/components/ui/input.svelte';
+    import Select from '$lib/components/ui/select.svelte';
 
     interface Product {
         id: string;
         name: string;
         category?: string;
         price: number;
+        cost?: number;
         current_stock: number;
         is_active: boolean;
+        deleted_at?: string | null;
     }
 
-    let products: Product[] = [];
-    let loading = true;
-    let error = '';
-    let statusMessage = '';
-    let statusType = 'info';
-    let pendingAction = '';
-    let realtimeStatus = 'connecting';
-    let realtimeChannel;
+    const categories = ['Food', 'Drinks', 'Hygiene', 'School Supplies', 'Other'];
 
-    let newProduct = {
+    let products = $state([] as Product[]);
+    let loading = $state(true);
+    let error = $state('');
+    let statusMessage = $state('');
+    let statusType = $state('info');
+    let pendingAction = $state('');
+    let realtimeStatus = $state('connecting');
+    let realtimeChannel;
+    let activeTab = $state('active');
+
+    let newProduct = $state({
         name: '',
         category: '',
         price: '',
+        cost: '',
         current_stock: '',
         is_active: true,
-    };
+    });
 
     onMount(async () => {
         await loadProducts();
@@ -65,7 +72,7 @@
         loading = true;
         error = '';
         try {
-            products = (await api.getProducts({ includeInactive: true })) as Product[];
+            products = (await api.getProducts({ includeInactive: true, includeDeleted: true })) as Product[];
         } catch (err) {
             error = err instanceof Error ? err.message : 'Failed to load products';
         } finally {
@@ -123,12 +130,15 @@
             name: '',
             category: '',
             price: '',
+            cost: '',
             current_stock: '',
             is_active: true,
         };
     }
 
     async function addProduct() {
+        setStatus('', 'info');
+        console.log('Add product clicked', newProduct);
         if (!newProduct.name.trim() || !newProduct.category.trim()) {
             setStatus('Name and category are required.', 'error');
             return;
@@ -138,6 +148,11 @@
             setStatus('Price must be a number.', 'error');
             return;
         }
+        const cost = newProduct.cost === '' ? null : Number(newProduct.cost);
+        if (cost !== null && Number.isNaN(cost)) {
+            setStatus('Cost must be a number.', 'error');
+            return;
+        }
         const stock = newProduct.current_stock === '' ? 0 : Number(newProduct.current_stock);
         if (Number.isNaN(stock) || stock < 0) {
             setStatus('Stock must be 0 or higher.', 'error');
@@ -145,10 +160,19 @@
         }
         pendingAction = 'new:save';
         try {
+            console.log('Creating product payload', {
+                name: newProduct.name.trim(),
+                category: newProduct.category.trim(),
+                price,
+                cost,
+                current_stock: stock,
+                is_active: newProduct.is_active,
+            });
             await api.createProduct({
                 name: newProduct.name.trim(),
                 category: newProduct.category.trim(),
                 price,
+                cost,
                 current_stock: stock,
                 is_active: newProduct.is_active,
             });
@@ -156,7 +180,58 @@
             resetNewProduct();
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
+            console.error('Add product failed', error);
             setStatus('Error adding product: ' + message, 'error');
+        } finally {
+            pendingAction = '';
+        }
+    }
+
+    function filteredProducts() {
+        if (activeTab === 'archived') {
+            return products.filter((product) => product.deleted_at);
+        }
+        return products.filter((product) => !product.deleted_at);
+    }
+
+    async function archiveProduct(product: Product) {
+        pendingAction = `${product.id}:archive`;
+        try {
+            await api.softDeleteProduct(product.id);
+            setStatus('Product archived.', 'success');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            setStatus('Error archiving product: ' + message, 'error');
+        } finally {
+            pendingAction = '';
+        }
+    }
+
+    async function restoreProduct(product: Product) {
+        pendingAction = `${product.id}:restore`;
+        try {
+            await api.restoreProduct(product.id);
+            setStatus('Product restored.', 'success');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            setStatus('Error restoring product: ' + message, 'error');
+        } finally {
+            pendingAction = '';
+        }
+    }
+
+    async function purgeProduct(product: Product) {
+        const confirmed = typeof window === 'undefined'
+            ? true
+            : window.confirm('Delete this product permanently? This cannot be undone.');
+        if (!confirmed) return;
+        pendingAction = `${product.id}:purge`;
+        try {
+            await api.purgeProduct(product.id);
+            setStatus('Product deleted.', 'success');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            setStatus('Error deleting product: ' + message, 'error');
         } finally {
             pendingAction = '';
         }
@@ -178,27 +253,52 @@
                 <span>Realtime status: {realtimeStatus}</span>
                 <span>Updates sync automatically.</span>
             </div>
+            <div class="flex flex-wrap gap-2">
+                <Button
+                    size="sm"
+                    variant={activeTab === 'active' ? 'default' : 'outline'}
+                    on:click={() => (activeTab = 'active')}
+                >
+                    Active
+                </Button>
+                <Button
+                    size="sm"
+                    variant={activeTab === 'archived' ? 'default' : 'outline'}
+                    on:click={() => (activeTab = 'archived')}
+                >
+                    Archived
+                </Button>
+            </div>
             <div class="rounded-md border border-border bg-background p-4">
                 <h3 class="text-base font-semibold">Add product</h3>
                 <p class="text-sm text-muted-foreground">Create new items officers can manage.</p>
-                <div class="mt-4 grid gap-3 md:grid-cols-5">
+                <div class="mt-4 grid gap-3 md:grid-cols-6">
                     <Input
                         placeholder="Name"
                         bind:value={newProduct.name}
                         aria-label="Product name"
                     />
+                    <Select bind:value={newProduct.category} aria-label="Product category">
+                        <option value="">Select category</option>
+                        {#each categories as category}
+                            <option value={category}>{category}</option>
+                        {/each}
+                    </Select>
                     <Input
-                        placeholder="Category"
-                        bind:value={newProduct.category}
-                        aria-label="Product category"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Price (PHP)"
+                        bind:value={newProduct.price}
+                        aria-label="Product price"
                     />
                     <Input
                         type="number"
                         step="0.01"
                         min="0"
-                        placeholder="Price"
-                        bind:value={newProduct.price}
-                        aria-label="Product price"
+                        placeholder="Cost (PHP)"
+                        bind:value={newProduct.cost}
+                        aria-label="Product cost"
                     />
                     <Input
                         type="number"
@@ -237,16 +337,28 @@
                                 <th class="px-4 py-2 font-medium">Name</th>
                                 <th class="px-4 py-2 font-medium">Category</th>
                                 <th class="px-4 py-2 font-medium">Price</th>
+                                <th class="px-4 py-2 font-medium">Cost</th>
                                 <th class="px-4 py-2 font-medium">Stock</th>
                                 <th class="px-4 py-2 font-medium">Active</th>
                                 <th class="px-4 py-2 font-medium">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {#each products as product}
+                            {#each filteredProducts() as product}
                                 <tr class="border-t border-border">
                                     <td class="px-4 py-2">{product.name}</td>
-                                    <td class="px-4 py-2">{product.category}</td>
+                                    <td class="px-4 py-2">
+                                        <Select
+                                            bind:value={product.category}
+                                            aria-label={`Category for ${product.name}`}
+                                            class="h-9 w-40"
+                                        >
+                                            <option value="">Select category</option>
+                                            {#each categories as category}
+                                                <option value={category}>{category}</option>
+                                            {/each}
+                                        </Select>
+                                    </td>
                                     <td class="px-4 py-2">
                                         <Input
                                             type="number"
@@ -256,6 +368,17 @@
                                             class="h-9 w-28"
                                             placeholder="Set price"
                                             aria-label={`Price for ${product.name}`}
+                                        />
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            bind:value={product.cost}
+                                            class="h-9 w-28"
+                                            placeholder="Set cost"
+                                            aria-label={`Cost for ${product.name}`}
                                         />
                                     </td>
                                     <td class="px-4 py-2">{product.current_stock}</td>
@@ -292,6 +415,33 @@
                                             >
                                                 {isPending(product, 'save') ? 'Saving...' : 'Save'}
                                             </Button>
+                                            {#if product.deleted_at}
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    on:click={() => restoreProduct(product)}
+                                                    disabled={isPending(product, 'restore')}
+                                                >
+                                                    Restore
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    on:click={() => purgeProduct(product)}
+                                                    disabled={isPending(product, 'purge')}
+                                                >
+                                                    Purge
+                                                </Button>
+                                            {:else}
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    on:click={() => archiveProduct(product)}
+                                                    disabled={isPending(product, 'archive')}
+                                                >
+                                                    Archive
+                                                </Button>
+                                            {/if}
                                         </div>
                                     </td>
                                 </tr>

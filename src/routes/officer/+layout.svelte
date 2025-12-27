@@ -4,6 +4,7 @@
     import { supabase } from '$lib/supabaseClient.js';
     import { cn } from '$lib/utils.js';
     import Button from '$lib/components/ui/button.svelte';
+    import { onMount } from 'svelte';
 
     let { children } = $props();
     let drawerOpen = $state(true);
@@ -20,6 +21,23 @@
         pathname.startsWith('/officer/login') || pathname.startsWith('/officer/signup')
     );
     const activeItem = $derived(navItems.find((item) => pathname.startsWith(item.href)));
+
+    onMount(() => {
+        if (isAuthRoute) return;
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (!session) {
+                goto('/officer/login');
+            }
+        });
+        supabase.auth.getSession().then(({ data }) => {
+            if (!data?.session) {
+                goto('/officer/login');
+            }
+        });
+        return () => {
+            authListener?.subscription?.unsubscribe();
+        };
+    });
 
     async function handleLogout() {
         await supabase.auth.signOut();
@@ -53,7 +71,7 @@
                     'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-border bg-background transition-all duration-200 lg:static',
                     drawerOpen ? 'w-64 px-4 py-6' : 'w-16 px-2 py-4'
                 )}
-                aria-hidden={!drawerOpen}
+                aria-hidden={false}
             >
                 <div class={cn('mb-6 flex items-center justify-between', drawerOpen ? '' : 'px-1')}>
                     <div class={cn('text-lg font-semibold text-primary', drawerOpen ? '' : 'sr-only')}>ApiTreats</div>

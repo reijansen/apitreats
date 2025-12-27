@@ -17,7 +17,7 @@ function handleError(error, fallback) {
 async function fetchProductById(productId) {
     const { data, error } = await supabase
         .from('products')
-        .select('id, name, price, is_active')
+        .select('id, name, price, cost, is_active')
         .eq('id', productId)
         .single();
     handleError(error, 'Failed to load product.');
@@ -27,10 +27,13 @@ async function fetchProductById(productId) {
 export const api = {
     async getProducts(options = {}) {
         assertSupabaseConfigured();
-        const { includeInactive = false } = options;
+        const { includeInactive = false, includeDeleted = false } = options;
         let query = supabase.from('products').select('*').order('category', { ascending: true }).order('name');
         if (!includeInactive) {
             query = query.eq('is_active', true);
+        }
+        if (!includeDeleted) {
+            query = query.is('deleted_at', null);
         }
         const { data, error } = await query;
         handleError(error, 'Failed to load products.');
@@ -48,6 +51,7 @@ export const api = {
             throw new Error('Product price not set.');
         }
         const totalAmount = Number(product.price) * Number(quantity);
+        const costTotal = product.cost ? Number(product.cost) * Number(quantity) : 0;
         const { data, error } = await supabase
             .from('purchases')
             .insert({
@@ -55,8 +59,9 @@ export const api = {
                 product_id,
                 quantity,
                 total_amount: totalAmount,
+                cost_total: costTotal,
             })
-            .select('id, room_number, quantity, total_amount, created_at')
+            .select('id, room_number, quantity, total_amount, cost_total, created_at')
             .single();
         handleError(error, 'Failed to create purchase.');
         return {
@@ -91,7 +96,7 @@ export const api = {
         const { date, room_number } = params;
         let query = supabase
             .from('purchases')
-            .select('id, room_number, quantity, total_amount, created_at, product:products(name)')
+            .select('id, room_number, quantity, total_amount, cost_total, created_at, product:products(name)')
             .order('created_at', { ascending: false });
         if (date) {
             const start = `${date}T00:00:00`;
@@ -109,6 +114,7 @@ export const api = {
             product_name: purchase.product?.name || 'Unknown',
             quantity: purchase.quantity,
             total_amount: purchase.total_amount,
+            cost_total: purchase.cost_total,
             created_at: purchase.created_at,
         }));
     },
@@ -119,8 +125,10 @@ export const api = {
             name: product.name,
             category: product.category,
             price: product.price,
+            cost: product.cost,
             current_stock: product.current_stock,
             is_active: product.is_active,
+            deleted_at: product.deleted_at,
         };
         const { data, error } = await supabase
             .from('products')
@@ -138,6 +146,7 @@ export const api = {
             name: product.name,
             category: product.category,
             price: product.price,
+            cost: product.cost,
             current_stock: product.current_stock ?? 0,
             is_active: product.is_active ?? true,
         };
@@ -181,6 +190,37 @@ export const api = {
             email,
         });
         return data;
+    },
+
+    async softDeleteProduct(id) {
+        assertSupabaseConfigured();
+        const { data, error } = await supabase
+            .from('products')
+            .update({ deleted_at: new Date().toISOString(), is_active: false })
+            .eq('id', id)
+            .select('*')
+            .single();
+        handleError(error, 'Failed to archive product.');
+        return data;
+    },
+
+    async restoreProduct(id) {
+        assertSupabaseConfigured();
+        const { data, error } = await supabase
+            .from('products')
+            .update({ deleted_at: null, is_active: true })
+            .eq('id', id)
+            .select('*')
+            .single();
+        handleError(error, 'Failed to restore product.');
+        return data;
+    },
+
+    async purgeProduct(id) {
+        assertSupabaseConfigured();
+        const { error } = await supabase.from('products').delete().eq('id', id);
+        handleError(error, 'Failed to delete product.');
+        return true;
     },
 
     async updateStock(id, payload) {

@@ -75,7 +75,7 @@
                 product_id: selectedProduct.id,
                 quantity: Number(quantity),
             });
-            message = `Thank you! Please pay $${total.toFixed(2)} to the honesty box.`;
+            message = `Thank you! Please pay ${formatCurrency(total)} to the honesty box.`;
             messageType = 'success';
             roomNumber = '';
             selectedProductId = '';
@@ -100,6 +100,14 @@
     function normalizeError(error) {
         if (error instanceof Error) return error.message;
         return String(error || 'Unknown error');
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-PH', {
+            style: 'currency',
+            currency: 'PHP',
+            maximumFractionDigits: 2,
+        }).format(amount || 0);
     }
 </script>
 
@@ -142,7 +150,9 @@
                         {#each Object.entries(groupByCategory(products)) as [category, prods]}
                             <optgroup label={category}>
                                 {#each prods as product}
-                                    <option value={product.id}>{product.name} - ${product.price || 'N/A'}</option>
+                                    <option value={product.id}>
+                                        {product.name} - {product.price ? formatCurrency(product.price) : 'N/A'}
+                                    </option>
                                 {/each}
                             </optgroup>
                         {/each}
@@ -178,7 +188,7 @@
             <CardFooter class="flex flex-col gap-3">
                 <div class="flex w-full items-center justify-between rounded-md border border-border bg-muted/40 px-3 py-2">
                     <span class="text-sm text-muted-foreground">Total</span>
-                    <span class="text-lg font-semibold">${total.toFixed(2)}</span>
+                    <span class="text-lg font-semibold">{formatCurrency(total)}</span>
                 </div>
                 <Button class="w-full" type="submit" disabled={submitting || loadingProducts || !!productsError}>
                     {submitting ? 'Submitting...' : 'Submit Purchase'}

@@ -33,6 +33,6 @@
     );
 </script>
 
-<button {type} class={classes} {...restProps}>
+<button {type} class={classes} on:click {...restProps}>
     <slot />
 </button>

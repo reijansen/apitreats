@@ -3,8 +3,10 @@ create table if not exists public.products (
     name text not null,
     category text not null,
     price numeric(10, 2),
+    cost numeric(10, 2),
     current_stock integer not null default 0,
     is_active boolean not null default true,
+    deleted_at timestamptz,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
 );
@@ -15,6 +17,7 @@ create table if not exists public.purchases (
     product_id bigint not null references public.products (id) on delete restrict,
     quantity integer not null,
     total_amount numeric(10, 2) not null,
+    cost_total numeric(10, 2),
     created_at timestamptz not null default now()
 );
 
@@ -31,6 +34,7 @@ create index if not exists purchases_created_at_idx on public.purchases (created
 create index if not exists purchases_room_number_idx on public.purchases (room_number);
 create index if not exists products_is_active_idx on public.products (is_active);
 create index if not exists products_category_idx on public.products (category);
+create index if not exists products_deleted_at_idx on public.products (deleted_at);
 create index if not exists officer_requests_created_at_idx on public.officer_requests (created_at desc);
 
 alter table public.products enable row level security;
@@ -38,11 +42,15 @@ alter table public.purchases enable row level security;
 alter table public.officer_requests enable row level security;
 
 alter table public.officer_requests add column if not exists email text;
+alter table public.products add column if not exists cost numeric(10, 2);
+alter table public.products add column if not exists deleted_at timestamptz;
+alter table public.purchases add column if not exists cost_total numeric(10, 2);
 
 drop policy if exists "products_select_public" on public.products;
 drop policy if exists "products_select_authenticated" on public.products;
 drop policy if exists "products_update_authenticated" on public.products;
 drop policy if exists "products_insert_authenticated" on public.products;
+drop policy if exists "products_delete_authenticated" on public.products;
 drop policy if exists "purchases_insert_public" on public.purchases;
 drop policy if exists "purchases_select_authenticated" on public.purchases;
 drop policy if exists "officer_requests_insert_public" on public.officer_requests;
@@ -50,7 +58,7 @@ drop policy if exists "officer_requests_insert_public" on public.officer_request
 create policy "products_select_public"
 on public.products
 for select
-using (is_active = true);
+using (is_active = true and deleted_at is null);
 
 create policy "products_select_authenticated"
 on public.products
@@ -71,6 +79,12 @@ for insert
 to authenticated
 with check (true);
 
+create policy "products_delete_authenticated"
+on public.products
+for delete
+to authenticated
+using (true);
+
 create policy "purchases_insert_public"
 on public.purchases
 for insert
@@ -86,3 +100,10 @@ create policy "officer_requests_insert_public"
 on public.officer_requests
 for insert
 with check (true);
+
+do $$
+begin
+    alter publication supabase_realtime add table public.products;
+exception
+    when duplicate_object then null;
+end $$;

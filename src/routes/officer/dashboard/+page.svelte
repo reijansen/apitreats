@@ -11,6 +11,7 @@
 
     let purchases = [];
     let totalSales = 0;
+    let totalCost = 0;
     let loading = true;
     let error = '';
     let realtimeStatus = 'connecting';
@@ -39,6 +40,7 @@
             const today = new Date().toISOString().split('T')[0];
             purchases = await api.getPurchases({ date: today });
             totalSales = purchases.reduce((sum, p) => sum + Number(p.total_amount || 0), 0);
+            totalCost = purchases.reduce((sum, p) => sum + Number(p.cost_total || 0), 0);
         } catch (err) {
             error = err instanceof Error ? err.message : 'Failed to load purchases';
         } finally {
@@ -51,7 +53,11 @@
     }
 
     function formatTotal(amount) {
-        return Number(amount || 0).toFixed(2);
+        return new Intl.NumberFormat('en-PH', {
+            style: 'currency',
+            currency: 'PHP',
+            maximumFractionDigits: 2,
+        }).format(Number(amount || 0));
     }
 
     function statusVariant(status) {
@@ -81,7 +87,11 @@
         <CardContent class="space-y-4">
             <div class="flex items-center justify-between rounded-md border border-border bg-muted/40 px-4 py-3">
                 <span class="text-sm text-muted-foreground">Total sales today</span>
-                <span class="text-lg font-semibold">${totalSales.toFixed(2)}</span>
+                <span class="text-lg font-semibold">{formatTotal(totalSales)}</span>
+            </div>
+            <div class="flex items-center justify-between rounded-md border border-border bg-muted/40 px-4 py-3">
+                <span class="text-sm text-muted-foreground">Profit today</span>
+                <span class="text-lg font-semibold">{formatTotal(totalSales - totalCost)}</span>
             </div>
             {#if loading}
                 <p class="text-sm text-muted-foreground">Loading purchases...</p>
@@ -107,7 +117,7 @@
                                     <td class="px-4 py-2">{purchase.room_number}</td>
                                     <td class="px-4 py-2">{purchase.product_name || purchase.product_id}</td>
                                     <td class="px-4 py-2">{purchase.quantity}</td>
-                                    <td class="px-4 py-2">${formatTotal(purchase.total_amount)}</td>
+                                    <td class="px-4 py-2">{formatTotal(purchase.total_amount)}</td>
                                     <td class="px-4 py-2">{formatTime(purchase.created_at)}</td>
                                 </tr>
                             {/each}
