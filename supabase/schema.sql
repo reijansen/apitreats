@@ -54,6 +54,8 @@ drop policy if exists "products_delete_authenticated" on public.products;
 drop policy if exists "purchases_insert_public" on public.purchases;
 drop policy if exists "purchases_select_authenticated" on public.purchases;
 drop policy if exists "officer_requests_insert_public" on public.officer_requests;
+drop policy if exists "officer_requests_select_authenticated" on public.officer_requests;
+drop policy if exists "officer_requests_update_authenticated" on public.officer_requests;
 
 create policy "products_select_public"
 on public.products
@@ -99,6 +101,19 @@ using (true);
 create policy "officer_requests_insert_public"
 on public.officer_requests
 for insert
+with check (true);
+
+create policy "officer_requests_select_authenticated"
+on public.officer_requests
+for select
+to authenticated
+using (true);
+
+create policy "officer_requests_update_authenticated"
+on public.officer_requests
+for update
+to authenticated
+using (true)
 with check (true);
 
 do $$

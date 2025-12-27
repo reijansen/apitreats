@@ -181,6 +181,13 @@ export const api = {
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
+            options: {
+                data: {
+                    name,
+                    position,
+                    room_number,
+                },
+            },
         });
         handleError(error, 'Sign up failed.');
         await this.createOfficerRequest({
