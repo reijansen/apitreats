@@ -95,7 +95,19 @@
     }
 </script>
 
-<main class="min-h-screen bg-muted/40 px-4 py-10">
+<header class="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
+    <nav class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:h-14 sm:flex-nowrap">
+        <div class="text-base font-semibold tracking-tight text-primary">ApiTreats</div>
+        <a
+            href="/officer/login"
+            class="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+            Back to Officer Login
+        </a>
+    </nav>
+</header>
+
+<main class="min-h-[calc(100vh-56px)] px-4 py-10">
     <Card class="mx-auto w-full max-w-md">
         <CardHeader>
             <CardTitle>Officer Sign Up</CardTitle>
