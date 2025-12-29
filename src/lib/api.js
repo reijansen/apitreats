@@ -95,27 +95,29 @@ export const api = {
         assertSupabaseConfigured();
         const { date, room_number } = params;
         let query = supabase
-            .from('purchases')
-            .select('id, room_number, quantity, total_amount, cost_total, created_at, product:products(name)')
-            .order('created_at', { ascending: false });
+            .from('purchase_items')
+            .select(
+                'id, quantity, line_total, unit_price_at_time, purchase:purchases(id, room_number, created_at), item:items(name)'
+            )
+            .order('created_at', { foreignTable: 'purchases', ascending: false });
         if (date) {
             const start = `${date}T00:00:00`;
             const end = `${date}T23:59:59`;
-            query = query.gte('created_at', start).lte('created_at', end);
+            query = query.gte('purchases.created_at', start).lte('purchases.created_at', end);
         }
         if (room_number) {
-            query = query.eq('room_number', room_number);
+            query = query.eq('purchases.room_number', room_number);
         }
         const { data, error } = await query;
         handleError(error, 'Failed to load purchases.');
-        return (data || []).map((purchase) => ({
-            id: purchase.id,
-            room_number: purchase.room_number,
-            product_name: purchase.product?.name || 'Unknown',
-            quantity: purchase.quantity,
-            total_amount: purchase.total_amount,
-            cost_total: purchase.cost_total,
-            created_at: purchase.created_at,
+        return (data || []).map((row) => ({
+            id: row.purchase?.id || row.id,
+            room_number: row.purchase?.room_number,
+            product_name: row.item?.name || 'Unknown',
+            quantity: row.quantity,
+            total_amount: row.line_total,
+            cost_total: null,
+            created_at: row.purchase?.created_at,
         }));
     },
 

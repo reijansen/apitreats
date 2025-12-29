@@ -1,16 +1,24 @@
 import { supabase } from './supabaseClient.js';
 
-async function hydratePurchase(purchase) {
-    if (!purchase?.product_id) return { ...purchase, product_name: 'Unknown' };
-    const { data, error } = await supabase
-        .from('products')
-        .select('name')
-        .eq('id', purchase.product_id)
+async function hydratePurchaseLine(line) {
+    const { data: purchase } = await supabase
+        .from('purchases')
+        .select('room_number, created_at')
+        .eq('id', line.purchase_id)
         .single();
-    if (error) {
-        return { ...purchase, product_name: 'Unknown' };
-    }
-    return { ...purchase, product_name: data?.name || 'Unknown' };
+    const { data: item } = await supabase
+        .from('items')
+        .select('name')
+        .eq('id', line.item_id)
+        .single();
+    return {
+        id: line.purchase_id,
+        room_number: purchase?.room_number,
+        product_name: item?.name || 'Unknown',
+        quantity: line.quantity,
+        total_amount: line.line_total,
+        created_at: purchase?.created_at,
+    };
 }
 
 export function connectWebSocket(onMessage, onStatus) {
@@ -24,9 +32,9 @@ export function connectWebSocket(onMessage, onStatus) {
         .channel('realtime:purchases')
         .on(
             'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'purchases' },
+            { event: 'INSERT', schema: 'public', table: 'purchase_items' },
             async (payload) => {
-                const hydrated = await hydratePurchase(payload.new);
+                const hydrated = await hydratePurchaseLine(payload.new);
                 onMessage?.({ type: 'new_purchase', data: hydrated });
             }
         )

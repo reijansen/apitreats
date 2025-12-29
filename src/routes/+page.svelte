@@ -1,6 +1,6 @@
 <script>
-    import { api } from '$lib/api.js';
     import { onMount } from 'svelte';
+    import { supabase } from '$lib/supabaseClient.js';
     import Button from '$lib/components/ui/button.svelte';
     import Card from '$lib/components/ui/card.svelte';
     import CardContent from '$lib/components/ui/card-content.svelte';
@@ -12,74 +12,167 @@
     import Label from '$lib/components/ui/label.svelte';
     import Select from '$lib/components/ui/select.svelte';
 
+    let items = [];
+    let loadingItems = true;
+    let itemsError = '';
+    let searchQuery = '';
+    let sortOption = 'name-asc';
+    let categoryFilter = '';
+
+    let cart = {};
+    let quantityWarnings = {};
+
     let roomNumber = '';
-    let selectedProductId = '';
-    let selectedProduct = null;
-    let quantity = 1;
-    let products = [];
-    let total = 0;
+    let purchaserName = '';
+    let notes = '';
+
+    let submitting = false;
     let message = '';
     let messageType = 'info';
-    let loadingProducts = true;
-    let submitting = false;
-    let productsError = '';
-    let fieldErrors = {
-        roomNumber: '',
-        product: '',
-        quantity: '',
-    };
+    let receipt = null;
 
     onMount(async () => {
-        loadingProducts = true;
-        productsError = '';
-        try {
-            products = await api.getProducts();
-        } catch (error) {
-            productsError = normalizeError(error);
-        } finally {
-            loadingProducts = false;
-        }
+        await loadItems();
     });
 
-    $: selectedProduct =
-        products.find((product) => String(product.id) === String(selectedProductId)) || null;
+    async function loadItems() {
+        loadingItems = true;
+        itemsError = '';
+        try {
+            const { data, error } = await supabase.rpc('get_public_items');
+            if (error) throw error;
+            items = data || [];
+        } catch (error) {
+            itemsError = normalizeError(error);
+        } finally {
+            loadingItems = false;
+        }
+    }
 
-    $: if (selectedProduct && Number(quantity) > 0) {
-        total = (selectedProduct.price || 0) * Number(quantity);
-    } else {
-        total = 0;
+    $: categoryOptions = Array.from(
+        new Map(
+            items
+                .filter((item) => item.category_name)
+                .map((item) => [item.category_name, item.category_name])
+        ).values()
+    );
+
+    $: filteredItems = items.filter((item) => {
+        const q = searchQuery.trim().toLowerCase();
+        const category = categoryFilter.trim().toLowerCase();
+        if (category && (item.category_name || '').toLowerCase() != category) return false;
+        if (!q) return true;
+        const name = item.name?.toLowerCase() || '';
+        const categoryName = item.category_name?.toLowerCase() || '';
+        return name.includes(q) || categoryName.includes(q);
+    });
+
+    $: sortedItems = [...filteredItems].sort((a, b) => {
+        if (sortOption === 'price-asc') return Number(a.retail_price) - Number(b.retail_price);
+        if (sortOption === 'price-desc') return Number(b.retail_price) - Number(a.retail_price);
+        if (sortOption === 'stock-desc') return Number(b.stock) - Number(a.stock);
+        return a.name.localeCompare(b.name);
+    });
+
+    $: cartLines = Object.entries(cart)
+        .filter(([, qty]) => qty > 0)
+        .map(([itemId, qty]) => {
+            const item = items.find((row) => String(row.id) === String(itemId));
+            if (!item) return null;
+            return {
+                item_id: item.id,
+                name: item.name,
+                unit_price: Number(item.retail_price || 0),
+                qty,
+                line_total: Number(item.retail_price || 0) * qty,
+            };
+        })
+        .filter(Boolean);
+
+    $: itemsSelected = cartLines.length;
+    $: totalQuantity = cartLines.reduce((sum, line) => sum + Number(line.qty), 0);
+    $: subtotal = cartLines.reduce((sum, line) => sum + Number(line.line_total), 0);
+
+    $: isRoomValid = !!roomNumber.trim() && /^[0-9]+$/.test(roomNumber.trim());
+    $: canSubmit = isRoomValid && cartLines.length > 0 && !submitting && !loadingItems;
+
+    function getCartKey(itemId) {
+        return String(itemId);
+    }
+
+    function getQty(itemId) {
+        return Number(cart[getCartKey(itemId)] || 0);
+    }
+
+    function getStock(item) {
+        const value = Number(item?.stock ?? 0);
+        return Number.isNaN(value) ? 0 : value;
+    }
+
+    function clampQty(item, qty) {
+        const available = getStock(item);
+        if (available && qty > available) {
+            quantityWarnings = { ...quantityWarnings, [item.id]: 'Max stock reached.' };
+            return available;
+        }
+        if (qty < 0) return 0;
+        if (quantityWarnings[item.id]) {
+            const { [item.id]: _removed, ...rest } = quantityWarnings;
+            quantityWarnings = rest;
+        }
+        return qty;
+    }
+
+    function setQty(item, qty) {
+        const nextQty = clampQty(item, Number(qty) || 0);
+        const key = getCartKey(item.id);
+        cart = { ...cart, [key]: nextQty };
+        if (nextQty === 0) {
+            const { [key]: _removed, ...rest } = cart;
+            cart = rest;
+        }
+    }
+
+    function updateQty(item, delta) {
+        const current = getQty(item.id);
+        setQty(item, current + delta);
+    }
+
+    function resetFilters() {
+        searchQuery = '';
+        sortOption = 'name-asc';
+        categoryFilter = '';
     }
 
     async function submitPurchase() {
-        fieldErrors = { roomNumber: '', product: '', quantity: '' };
+        if (!canSubmit) return;
         message = '';
         messageType = 'info';
-
-        if (!roomNumber.trim()) {
-            fieldErrors.roomNumber = 'Room number is required.';
-        }
-        if (!selectedProduct) {
-            fieldErrors.product = 'Select a product.';
-        }
-        if (!Number(quantity) || Number(quantity) < 1) {
-            fieldErrors.quantity = 'Quantity must be at least 1.';
-        }
-        if (fieldErrors.roomNumber || fieldErrors.product || fieldErrors.quantity) {
-            return;
-        }
-
+        receipt = null;
         try {
             submitting = true;
-            await api.createPurchase({
-                room_number: roomNumber.trim(),
-                product_id: selectedProduct.id,
-                quantity: Number(quantity),
+            const cartPayload = cartLines.map((line) => ({ item_id: line.item_id, qty: line.qty }));
+            const { data, error } = await supabase.rpc('checkout_purchase', {
+                p_room_number: roomNumber.trim(),
+                p_cart: cartPayload,
+                p_purchaser_name: purchaserName.trim() || null,
+                p_notes: notes.trim() || null,
             });
-            message = `Thank you! Please pay ${formatCurrency(total)} to the honesty box.`;
+            if (error) throw error;
+            const result = Array.isArray(data) ? data[0] : data;
+            receipt = {
+                purchase_id: result?.purchase_id,
+                total_amount: result?.total_amount || 0,
+                lines: cartLines,
+            };
+            message = 'Purchase logged successfully.';
             messageType = 'success';
+            cart = {};
             roomNumber = '';
-            selectedProductId = '';
-            quantity = 1;
+            purchaserName = '';
+            notes = '';
+            quantityWarnings = {};
+            await loadItems();
         } catch (error) {
             message = 'Error: ' + normalizeError(error);
             messageType = 'error';
@@ -88,17 +181,11 @@
         }
     }
 
-    function groupByCategory(products) {
-        return products.reduce((acc, product) => {
-            const category = product.category || 'Other';
-            if (!acc[category]) acc[category] = [];
-            acc[category].push(product);
-            return acc;
-        }, {});
-    }
-
     function normalizeError(error) {
         if (error instanceof Error) return error.message;
+        if (error && typeof error === 'object' && 'message' in error) {
+            return String(error.message || 'Unknown error');
+        }
         return String(error || 'Unknown error');
     }
 
@@ -111,13 +198,128 @@
     }
 </script>
 
-<main class="min-h-screen bg-muted/40 px-4 py-10">
-    <Card class="mx-auto w-full max-w-lg">
-        <CardHeader>
-            <CardTitle>Honesty Store Purchase</CardTitle>
-            <CardDescription>Select an item and log your purchase.</CardDescription>
-        </CardHeader>
-        <form on:submit|preventDefault={submitPurchase} aria-busy={submitting}>
+<main class="min-h-screen bg-muted/40 px-4 py-8">
+    <div class="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
+        <Card class="flex min-h-[calc(100vh-8rem)] flex-col border border-border bg-card/95 shadow-sm">
+            <CardHeader>
+                <CardTitle>Available items</CardTitle>
+                <CardDescription>Tap + or - to add items quickly.</CardDescription>
+            </CardHeader>
+            <CardContent class="flex flex-col gap-4">
+                <div class="flex flex-wrap items-end gap-3">
+                    <div class="space-y-1.5">
+                        <Label for="search-items" class="text-xs uppercase tracking-wide text-muted-foreground">Search</Label>
+                        <Input
+                            id="search-items"
+                            placeholder="Search items"
+                            bind:value={searchQuery}
+                            class="w-[260px]"
+                            aria-label="Search items"
+                        />
+                    </div>
+                    <div class="space-y-1.5">
+                        <Label for="sort-items" class="text-xs uppercase tracking-wide text-muted-foreground">Sort</Label>
+                        <Select id="sort-items" bind:value={sortOption} class="h-10 w-48" aria-label="Sort items">
+                            <option value="name-asc">Alphabetical (A-Z)</option>
+                            <option value="price-asc">Price (low)</option>
+                            <option value="price-desc">Price (high)</option>
+                            <option value="stock-desc">Stock (high)</option>
+                        </Select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <Label for="filter-category" class="text-xs uppercase tracking-wide text-muted-foreground">Category</Label>
+                        <Select id="filter-category" bind:value={categoryFilter} class="h-10 w-52" aria-label="Filter by category">
+                            <option value="">All categories</option>
+                            {#each categoryOptions as category}
+                                <option value={category}>{category}</option>
+                            {/each}
+                        </Select>
+                    </div>
+                    <Button type="button" variant="outline" on:click={resetFilters} class="h-10">Reset filters</Button>
+                </div>
+                {#if loadingItems}
+                    <p class="text-sm text-muted-foreground">Loading items...</p>
+                {:else if itemsError}
+                    <p class="text-sm text-destructive">Could not load items: {itemsError}</p>
+                {:else if sortedItems.length === 0}
+                    <p class="text-sm text-muted-foreground">No items match your filters.</p>
+                {:else}
+                    <div class="flex-1 overflow-y-auto rounded-xl border border-border bg-background/80">
+                        <div class="divide-y divide-border">
+                            {#each sortedItems as item}
+                                <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-12 w-12 items-center justify-center rounded-lg border border-border bg-muted text-sm font-semibold text-muted-foreground">
+                                            {item.name?.slice(0, 1) || '?'}
+                                        </div>
+                                        <div>
+                                            <div class="font-medium">{item.name}</div>
+                                            <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                                                <span class="rounded-full border border-border bg-muted/30 px-2 py-0.5 text-foreground/90">
+                                                    {item.category_name || 'Uncategorized'}
+                                                </span>
+                                                <span class="rounded-full border border-border bg-muted/30 px-2 py-0.5">
+                                                    {getStock(item) > 0 ? `${getStock(item)} left` : 'Out of stock'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex min-w-[200px] flex-wrap items-center justify-end gap-4">
+                                        <div class="text-sm font-semibold">{formatCurrency(item.retail_price)}</div>
+                                        <div class="flex items-center overflow-hidden rounded-lg border border-border bg-background">
+                                            <button
+                                                type="button"
+                                                class="h-9 w-10 rounded-none border-r border-border text-base"
+                                                on:click={() => updateQty(item, -1)}
+                                                aria-label={`Decrease ${item.name}`}
+                                            >
+                                                -
+                                            </button>
+                                            <div class="min-w-[2.5rem] text-center text-sm font-medium">
+                                                {getQty(item.id)}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                class="h-9 w-10 rounded-none border-l border-border text-base"
+                                                on:click={() => updateQty(item, 1)}
+                                                aria-label={`Increase ${item.name}`}
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {#if quantityWarnings[item.id]}
+                                        <div class="w-full text-xs text-destructive">{quantityWarnings[item.id]}</div>
+                                    {/if}
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
+                {/if}
+            </CardContent>
+            <CardFooter class="mt-auto">
+                <div class="flex w-full flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-muted/40 px-5 py-4 text-sm">
+                    <div>
+                        <div class="text-xs text-muted-foreground">Items selected</div>
+                        <div class="text-lg font-semibold">{itemsSelected}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-muted-foreground">Total quantity</div>
+                        <div class="text-lg font-semibold">{totalQuantity}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-muted-foreground">Subtotal</div>
+                        <div class="text-lg font-semibold">{formatCurrency(subtotal)}</div>
+                    </div>
+                </div>
+            </CardFooter>
+        </Card>
+
+        <Card class="lg:sticky lg:top-6 border border-border bg-card/95 shadow-sm">
+            <CardHeader>
+                <CardTitle>Purchase details</CardTitle>
+                <CardDescription>Room details and cart summary.</CardDescription>
+            </CardHeader>
             <CardContent class="space-y-4">
                 <div class="space-y-2">
                     <Label for="room-number">Room Number</Label>
@@ -126,72 +328,40 @@
                         name="roomNumber"
                         type="text"
                         bind:value={roomNumber}
-                        autocomplete="organization"
-                        aria-invalid={fieldErrors.roomNumber ? 'true' : 'false'}
-                        aria-describedby={fieldErrors.roomNumber ? 'room-number-error' : undefined}
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        placeholder="e.g. 214"
+                        aria-invalid={!isRoomValid && roomNumber ? 'true' : 'false'}
                         required
                     />
-                    {#if fieldErrors.roomNumber}
-                        <p id="room-number-error" class="text-sm text-destructive">{fieldErrors.roomNumber}</p>
-                    {/if}
                 </div>
                 <div class="space-y-2">
-                    <Label for="product-select">Product</Label>
-                    <Select
-                        id="product-select"
-                        name="product"
-                        bind:value={selectedProductId}
-                        aria-invalid={fieldErrors.product ? 'true' : 'false'}
-                        aria-describedby={fieldErrors.product ? 'product-error' : undefined}
-                        disabled={loadingProducts || !!productsError}
-                        required
-                    >
-                        <option value="">Select a product</option>
-                        {#each Object.entries(groupByCategory(products)) as [category, prods]}
-                            <optgroup label={category}>
-                                {#each prods as product}
-                                    <option value={product.id}>
-                                        {product.name} - {product.price ? formatCurrency(product.price) : 'N/A'}
-                                    </option>
-                                {/each}
-                            </optgroup>
-                        {/each}
-                    </Select>
-                    {#if fieldErrors.product}
-                        <p id="product-error" class="text-sm text-destructive">{fieldErrors.product}</p>
-                    {/if}
+                    <Label for="purchaser-name">Name (optional)</Label>
+                    <Input id="purchaser-name" bind:value={purchaserName} placeholder="Your name" />
                 </div>
                 <div class="space-y-2">
-                    <Label for="quantity-input">Quantity</Label>
-                    <Input
-                        id="quantity-input"
-                        name="quantity"
-                        type="number"
-                        bind:value={quantity}
-                        min="1"
-                        aria-invalid={fieldErrors.quantity ? 'true' : 'false'}
-                        aria-describedby={fieldErrors.quantity ? 'quantity-error' : undefined}
-                        required
-                    />
-                    {#if fieldErrors.quantity}
-                        <p id="quantity-error" class="text-sm text-destructive">{fieldErrors.quantity}</p>
+                    <Label for="notes">Notes / purpose (optional)</Label>
+                    <Input id="notes" bind:value={notes} placeholder="For study group, event, etc." />
+                </div>
+                <div class="space-y-2">
+                    <div class="text-sm font-semibold">Cart summary</div>
+                    {#if cartLines.length === 0}
+                        <p class="text-sm text-muted-foreground">No items selected.</p>
+                    {:else}
+                        <div class="space-y-2">
+                            {#each cartLines as line}
+                                <div class="flex items-center justify-between text-sm">
+                                    <div>{line.name} x {line.qty}</div>
+                                    <div class="font-medium">{formatCurrency(line.line_total)}</div>
+                                </div>
+                            {/each}
+                        </div>
                     {/if}
                 </div>
-                {#if loadingProducts}
-                    <p class="text-sm text-muted-foreground">Loading products...</p>
-                {:else if productsError}
-                    <p class="text-sm text-destructive">Could not load products: {productsError}</p>
-                {:else if products.length === 0}
-                    <p class="text-sm text-muted-foreground">No products available. Please check back later.</p>
-                {/if}
             </CardContent>
             <CardFooter class="flex flex-col gap-3">
-                <div class="flex w-full items-center justify-between rounded-md border border-border bg-muted/40 px-3 py-2">
-                    <span class="text-sm text-muted-foreground">Total</span>
-                    <span class="text-lg font-semibold">{formatCurrency(total)}</span>
-                </div>
-                <Button class="w-full" type="submit" disabled={submitting || loadingProducts || !!productsError}>
-                    {submitting ? 'Submitting...' : 'Submit Purchase'}
+                <Button class="w-full" type="button" disabled={!canSubmit} on:click={submitPurchase}>
+                    {submitting ? 'Submitting...' : 'Submit purchase'}
                 </Button>
                 {#if message}
                     <p
@@ -202,7 +372,17 @@
                         {message}
                     </p>
                 {/if}
+                {#if receipt}
+                    <div class="w-full rounded-md border border-border bg-background p-3 text-sm">
+                        <div class="font-semibold">Receipt summary</div>
+                        <div class="mt-2 flex items-center justify-between">
+                            <span>Total due</span>
+                            <span>{formatCurrency(receipt.total_amount)}</span>
+                        </div>
+                        <div class="mt-1 text-xs text-muted-foreground">Reference: {receipt.purchase_id}</div>
+                    </div>
+                {/if}
             </CardFooter>
-        </form>
-    </Card>
+        </Card>
+    </div>
 </main>
