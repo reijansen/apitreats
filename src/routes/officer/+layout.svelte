@@ -11,7 +11,8 @@
 
     const navItems = [
         { label: 'Profile', href: '/officer/profile', icon: 'user' },
-        { label: 'Dashboard', href: '/officer/inventory', icon: 'layout' },
+        { label: 'Dashboard', href: '/officer/dashboard', icon: 'layout' },
+        { label: 'Inventory', href: '/officer/inventory', icon: 'package' },
         { label: 'Admin Requests', href: '/officer/requests', icon: 'shield' },
         { label: 'Analytics', href: '/officer/analytics', icon: 'bar' },
     ];
@@ -55,6 +56,7 @@
     function iconPath(name) {
         if (name === 'user') return 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8';
         if (name === 'layout') return 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z';
+        if (name === 'package') return 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z M3.27 6.96L12 12l8.73-5.04 M12 22V12';
         if (name === 'shield') return 'M12 3l8 4v5c0 5-3.5 9-8 9s-8-4-8-9V7l8-4z';
         return 'M4 19h16 M4 15h16 M4 11h16 M4 7h16';
     }
