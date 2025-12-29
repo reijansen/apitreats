@@ -239,10 +239,6 @@
 </script>
 
 <section class="space-y-6">
-    <div class="flex flex-col gap-2">
-        <h1 class="text-2xl font-semibold">Inventory Management</h1>
-        <p class="text-sm text-muted-foreground">Adjust prices, stock, and availability.</p>
-    </div>
     <Card>
         <CardHeader>
             <CardTitle>Products</CardTitle>

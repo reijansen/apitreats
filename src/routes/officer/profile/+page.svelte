@@ -111,10 +111,6 @@
 </script>
 
 <section class="space-y-6">
-    <div class="flex flex-col gap-2">
-        <h1 class="text-2xl font-semibold">Profile</h1>
-        <p class="text-sm text-muted-foreground">View your officer account details.</p>
-    </div>
     <Card>
         <CardHeader>
             <CardTitle>Account</CardTitle>

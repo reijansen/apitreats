@@ -69,10 +69,6 @@
 </script>
 
 <section class="space-y-6">
-    <div class="flex flex-col gap-2">
-        <h1 class="text-2xl font-semibold">Officer Dashboard</h1>
-        <p class="text-sm text-muted-foreground">Realtime purchases and totals for today.</p>
-    </div>
     <Card>
         <CardHeader class="gap-2">
             <div class="flex items-center justify-between">

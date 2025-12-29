@@ -32,10 +32,6 @@
 </script>
 
 <section class="space-y-6">
-    <div class="flex flex-col gap-2">
-        <h1 class="text-2xl font-semibold">Admin Requests</h1>
-        <p class="text-sm text-muted-foreground">Review officer access requests.</p>
-    </div>
     <Card>
         <CardHeader>
             <CardTitle>Pending Requests</CardTitle>

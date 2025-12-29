@@ -48,10 +48,6 @@
 </script>
 
 <section class="space-y-6">
-    <div class="flex flex-col gap-2">
-        <h1 class="text-2xl font-semibold">Analytics</h1>
-        <p class="text-sm text-muted-foreground">Quick metrics for sales activity.</p>
-    </div>
     <div class="grid gap-4 md:grid-cols-2">
         <Card>
             <CardHeader>
