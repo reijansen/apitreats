@@ -19,7 +19,6 @@
 
     async function login() {
         error = '';
-        resetStatus = '';
         if (!email.trim() || !password) {
             error = 'Enter your email and password.';
             return;

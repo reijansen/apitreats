@@ -26,7 +26,7 @@
         }
         try {
             submitting = true;
-            const redirectTo = browser ? `${window.location.origin}/officer/login` : undefined;
+            const redirectTo = browser ? `${window.location.origin}/reset-password` : undefined;
             await api.requestPasswordReset(email.trim(), redirectTo);
             status = 'Check your email for a reset link.';
             statusType = 'success';
