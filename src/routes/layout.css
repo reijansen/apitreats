@@ -27,7 +27,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply m-0 bg-background text-foreground;
     background-image: linear-gradient(180deg, #ffffff 0%, #d0ded8 100%);
     background-attachment: fixed;
   }

@@ -59,7 +59,7 @@
 </script>
 
 {#if isAuthRoute}
-    <div class="min-h-screen bg-muted/40 px-4 py-10">
+    <div class="min-h-screen bg-muted/40">
         {@render children()}
     </div>
 {:else}
