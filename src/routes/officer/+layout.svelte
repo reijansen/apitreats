@@ -18,7 +18,9 @@
 
     const pathname = $derived($page.url.pathname);
     const isAuthRoute = $derived(
-        pathname.startsWith('/officer/login') || pathname.startsWith('/officer/signup')
+        pathname.startsWith('/officer/login') ||
+            pathname.startsWith('/officer/signup') ||
+            pathname.startsWith('/officer/forgot')
     );
     const activeItem = $derived(navItems.find((item) => pathname.startsWith(item.href)));
 
