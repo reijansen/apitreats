@@ -35,6 +35,7 @@
     let realtimeChannel;
     let activeTab = $state('active');
     let searchQuery = $state('');
+    let categoryFilter = $state('');
     let showNewProduct = $state(false);
     let showEditPanel = $state(false);
     let showAdjustPanel = $state(false);
@@ -285,12 +286,14 @@
 
     function visibleProducts() {
         const filtered = filteredProducts();
-        if (!searchQuery.trim()) return filtered;
         const q = searchQuery.trim().toLowerCase();
+        const category = categoryFilter.trim().toLowerCase();
         return filtered.filter((product) => {
+            if (category && (product.category || '').toLowerCase() !== category) return false;
+            if (!q) return true;
             const name = product.name?.toLowerCase() || '';
-            const category = product.category?.toLowerCase() || '';
-            return name.includes(q) || category.includes(q);
+            const categoryName = product.category?.toLowerCase() || '';
+            return name.includes(q) || categoryName.includes(q);
         });
     }
 
@@ -375,38 +378,42 @@
 </script>
 
 <section class="space-y-6">
-    <div class="flex flex-col gap-2">
-        <div class="flex flex-wrap items-start justify-between gap-4">
+    <Card>
+        <CardHeader class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-semibold">Inventory</h1>
-                <p class="text-sm text-muted-foreground">Quick updates for dorm items.</p>
+                <CardTitle>Items</CardTitle>
+                <CardDescription>Manage dorm store items and pricing.</CardDescription>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <Button on:click={() => startAdjust()}>Adjust Stock</Button>
-                <Button variant="secondary" on:click={() => (showNewProduct = true)}>
-                    Add Item
-                </Button>
+                <Button on:click={() => (showNewProduct = true)}>Add Item</Button>
+                <Button variant="outline" on:click={() => startAdjust()}>Adjust Stock</Button>
             </div>
-        </div>
-        {#if realtimeStatus === 'error' || realtimeStatus === 'disconnected'}
-            <div class="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                Sync issue ? changes will retry automatically.
-            </div>
-        {/if}
-    </div>
-    <Card>
-        <CardHeader>
-            <CardTitle>Items</CardTitle>
-            <CardDescription>View stock and pricing. Edit details in a focused panel.</CardDescription>
         </CardHeader>
         <CardContent class="space-y-6">
+            {#if realtimeStatus === 'error' || realtimeStatus === 'disconnected'}
+                <div class="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                    Sync issue — changes will retry automatically.
+                </div>
+            {/if}
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <Input
-                    placeholder="Search items or categories"
-                    bind:value={searchQuery}
-                    class="max-w-sm"
-                    aria-label="Search items"
-                />
+                <div class="flex w-full flex-col items-start gap-3 sm:w-auto sm:flex-row sm:items-center">
+                    <Input
+                        placeholder="Search items or categories"
+                        bind:value={searchQuery}
+                        class="max-w-sm"
+                        aria-label="Search items"
+                    />
+                    <Select
+                        bind:value={categoryFilter}
+                        class="h-9 w-44"
+                        aria-label="Filter by category"
+                    >
+                        <option value="">All categories</option>
+                        {#each categories as category}
+                            <option value={category}>{category}</option>
+                        {/each}
+                    </Select>
+                </div>
                 <div class="flex flex-wrap gap-2">
                     <Button
                         size="sm"
