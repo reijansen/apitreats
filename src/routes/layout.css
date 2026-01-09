@@ -28,6 +28,12 @@
 
   body {
     @apply m-0 bg-background text-foreground;
+    background: linear-gradient(180deg, #ffffff 0%, #d0ded8 100%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    @apply bg-[#85aa9b] text-white;
   }
 
   a {
