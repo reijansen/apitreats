@@ -1,201 +1,32 @@
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
-    import { supabase } from '$lib/supabaseClient.js';
-    import Button from '$lib/components/ui/button.svelte';
     import Card from '$lib/components/ui/card.svelte';
     import CardContent from '$lib/components/ui/card-content.svelte';
     import CardDescription from '$lib/components/ui/card-description.svelte';
     import CardFooter from '$lib/components/ui/card-footer.svelte';
     import CardHeader from '$lib/components/ui/card-header.svelte';
     import CardTitle from '$lib/components/ui/card-title.svelte';
-    import Input from '$lib/components/ui/input.svelte';
-    import Label from '$lib/components/ui/label.svelte';
-    import Select from '$lib/components/ui/select.svelte';
+    import ItemsList from '$lib/components/ItemsList.svelte';
+    import CheckoutForm from '$lib/components/CheckoutForm.svelte';
+    import CartSummary from '$lib/components/CartSummary.svelte';
+    import { loadItems } from '$lib/cartService';
+    import type { Item, CartLine } from '$lib/types';
 
-    let items = [];
+    let items: Item[] = [];
     let loadingItems = true;
     let itemsError = '';
-    let searchQuery = '';
-    let sortOption = 'name-asc';
-    let categoryFilter = '';
+    let sortedItems: Item[] = [];
 
-    let cart = {};
-    let quantityWarnings = {};
-
-    let roomNumber = '';
-    let purchaserName = '';
-    let notes = '';
-
-    let submitting = false;
-    let message = '';
-    let messageType = 'info';
-    let receipt = null;
+    let itemsSelected = 0;
+    let totalQuantity = 0;
+    let subtotal = 0;
 
     onMount(async () => {
-        await loadItems();
+        const { items: loadedItems, error } = await loadItems();
+        items = loadedItems;
+        itemsError = error;
+        loadingItems = false;
     });
-
-    async function loadItems() {
-        loadingItems = true;
-        itemsError = '';
-        try {
-            const { data, error } = await supabase.rpc('get_public_items');
-            if (error) throw error;
-            items = data || [];
-        } catch (error) {
-            itemsError = normalizeError(error);
-        } finally {
-            loadingItems = false;
-        }
-    }
-
-    $: categoryOptions = Array.from(
-        new Map(
-            items
-                .filter((item) => item.category_name)
-                .map((item) => [item.category_name, item.category_name])
-        ).values()
-    );
-
-    $: filteredItems = items.filter((item) => {
-        const q = searchQuery.trim().toLowerCase();
-        const category = categoryFilter.trim().toLowerCase();
-        if (category && (item.category_name || '').toLowerCase() != category) return false;
-        if (!q) return true;
-        const name = item.name?.toLowerCase() || '';
-        const categoryName = item.category_name?.toLowerCase() || '';
-        return name.includes(q) || categoryName.includes(q);
-    });
-
-    $: sortedItems = [...filteredItems].sort((a, b) => {
-        if (sortOption === 'price-asc') return Number(a.retail_price) - Number(b.retail_price);
-        if (sortOption === 'price-desc') return Number(b.retail_price) - Number(a.retail_price);
-        if (sortOption === 'stock-desc') return Number(b.stock) - Number(a.stock);
-        return a.name.localeCompare(b.name);
-    });
-
-    $: cartLines = Object.entries(cart)
-        .filter(([, qty]) => qty > 0)
-        .map(([itemId, qty]) => {
-            const item = items.find((row) => String(row.id) === String(itemId));
-            if (!item) return null;
-            return {
-                item_id: item.id,
-                name: item.name,
-                unit_price: Number(item.retail_price || 0),
-                qty,
-                line_total: Number(item.retail_price || 0) * qty,
-            };
-        })
-        .filter(Boolean);
-
-    $: itemsSelected = cartLines.length;
-    $: totalQuantity = cartLines.reduce((sum, line) => sum + Number(line.qty), 0);
-    $: subtotal = cartLines.reduce((sum, line) => sum + Number(line.line_total), 0);
-
-    $: isRoomValid = !!roomNumber.trim() && /^[0-9]+$/.test(roomNumber.trim());
-    $: canSubmit = isRoomValid && cartLines.length > 0 && !submitting && !loadingItems;
-
-    function getCartKey(itemId) {
-        return String(itemId);
-    }
-
-    function getQty(itemId) {
-        return Number(cart[getCartKey(itemId)] || 0);
-    }
-
-    function getStock(item) {
-        const value = Number(item?.stock ?? 0);
-        return Number.isNaN(value) ? 0 : value;
-    }
-
-    function clampQty(item, qty) {
-        const available = getStock(item);
-        if (available && qty > available) {
-            quantityWarnings = { ...quantityWarnings, [item.id]: 'Max stock reached.' };
-            return available;
-        }
-        if (qty < 0) return 0;
-        if (quantityWarnings[item.id]) {
-            const { [item.id]: _removed, ...rest } = quantityWarnings;
-            quantityWarnings = rest;
-        }
-        return qty;
-    }
-
-    function setQty(item, qty) {
-        const nextQty = clampQty(item, Number(qty) || 0);
-        const key = getCartKey(item.id);
-        cart = { ...cart, [key]: nextQty };
-        if (nextQty === 0) {
-            const { [key]: _removed, ...rest } = cart;
-            cart = rest;
-        }
-    }
-
-    function updateQty(item, delta) {
-        const current = getQty(item.id);
-        setQty(item, current + delta);
-    }
-
-    function resetFilters() {
-        searchQuery = '';
-        sortOption = 'name-asc';
-        categoryFilter = '';
-    }
-
-    async function submitPurchase() {
-        if (!canSubmit) return;
-        message = '';
-        messageType = 'info';
-        receipt = null;
-        try {
-            submitting = true;
-            const cartPayload = cartLines.map((line) => ({ item_id: line.item_id, qty: line.qty }));
-            const { data, error } = await supabase.rpc('checkout_purchase', {
-                p_room_number: roomNumber.trim(),
-                p_cart: cartPayload,
-                p_purchaser_name: purchaserName.trim() || null,
-                p_notes: notes.trim() || null,
-            });
-            if (error) throw error;
-            const result = Array.isArray(data) ? data[0] : data;
-            receipt = {
-                purchase_id: result?.purchase_id,
-                total_amount: result?.total_amount || 0,
-                lines: cartLines,
-            };
-            message = 'Purchase logged successfully.';
-            messageType = 'success';
-            cart = {};
-            roomNumber = '';
-            purchaserName = '';
-            notes = '';
-            quantityWarnings = {};
-            await loadItems();
-        } catch (error) {
-            message = 'Error: ' + normalizeError(error);
-            messageType = 'error';
-        } finally {
-            submitting = false;
-        }
-    }
-
-    function normalizeError(error) {
-        if (error instanceof Error) return error.message;
-        if (error && typeof error === 'object' && 'message' in error) {
-            return String(error.message || 'Unknown error');
-        }
-        return String(error || 'Unknown error');
-    }
-
-    function formatCurrency(amount) {
-        return new Intl.NumberFormat('en-PH', {
-            style: 'currency',
-            currency: 'PHP',
-            maximumFractionDigits: 2,
-        }).format(amount || 0);
-    }
 </script>
 
 <main class="min-h-screen bg-muted/40 px-4 py-8 sm:px-6 lg:px-10">
