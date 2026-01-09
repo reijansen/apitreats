@@ -198,28 +198,28 @@
     }
 </script>
 
-<main class="min-h-screen bg-muted/40 px-4 py-8">
-    <div class="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
+<main class="min-h-screen bg-muted/40 px-4 py-8 sm:px-6 lg:px-10">
+    <div class="mx-auto grid w-full max-w-6xl items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
         <Card class="flex min-h-[calc(100vh-8rem)] flex-col border border-border bg-card/95 shadow-sm">
             <CardHeader>
                 <CardTitle>Available items</CardTitle>
                 <CardDescription>Tap + or - to add items quickly.</CardDescription>
             </CardHeader>
             <CardContent class="flex flex-col gap-4">
-                <div class="flex flex-wrap items-end gap-3">
+                <div class="grid w-full gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,1fr)_auto] xl:items-end">
                     <div class="space-y-1.5">
                         <Label for="search-items" class="text-xs uppercase tracking-wide text-muted-foreground">Search</Label>
                         <Input
                             id="search-items"
                             placeholder="Search items"
                             bind:value={searchQuery}
-                            class="w-[260px]"
+                            class="w-full"
                             aria-label="Search items"
                         />
                     </div>
                     <div class="space-y-1.5">
                         <Label for="sort-items" class="text-xs uppercase tracking-wide text-muted-foreground">Sort</Label>
-                        <Select id="sort-items" bind:value={sortOption} class="h-10 w-48" aria-label="Sort items">
+                        <Select id="sort-items" bind:value={sortOption} class="h-10 w-full" aria-label="Sort items">
                             <option value="name-asc">Alphabetical (A-Z)</option>
                             <option value="price-asc">Price (low)</option>
                             <option value="price-desc">Price (high)</option>
@@ -228,14 +228,14 @@
                     </div>
                     <div class="space-y-1.5">
                         <Label for="filter-category" class="text-xs uppercase tracking-wide text-muted-foreground">Category</Label>
-                        <Select id="filter-category" bind:value={categoryFilter} class="h-10 w-52" aria-label="Filter by category">
+                        <Select id="filter-category" bind:value={categoryFilter} class="h-10 w-full" aria-label="Filter by category">
                             <option value="">All categories</option>
                             {#each categoryOptions as category}
                                 <option value={category}>{category}</option>
                             {/each}
                         </Select>
                     </div>
-                    <Button type="button" variant="outline" on:click={resetFilters} class="h-10">Reset filters</Button>
+                    <Button type="button" variant="outline" on:click={resetFilters} class="h-10 w-full xl:w-auto">Reset filters</Button>
                 </div>
                 {#if loadingItems}
                     <p class="text-sm text-muted-foreground">Loading items...</p>
@@ -247,7 +247,7 @@
                     <div class="flex-1 overflow-y-auto rounded-xl border border-border bg-background/80">
                         <div class="divide-y divide-border">
                             {#each sortedItems as item}
-                                <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-4">
+                                <div class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
                                     <div class="flex items-center gap-3">
                                         <div class="flex h-12 w-12 items-center justify-center rounded-lg border border-border bg-muted text-sm font-semibold text-muted-foreground">
                                             {item.name?.slice(0, 1) || '?'}
@@ -264,7 +264,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="flex min-w-[200px] flex-wrap items-center justify-end gap-4">
+                                    <div class="flex w-full flex-wrap items-center justify-between gap-4 sm:w-auto sm:justify-end">
                                         <div class="text-sm font-semibold">{formatCurrency(item.retail_price)}</div>
                                         <div class="flex items-center overflow-hidden rounded-lg border border-border bg-background">
                                             <button
@@ -298,7 +298,7 @@
                 {/if}
             </CardContent>
             <CardFooter class="mt-auto">
-                <div class="flex w-full flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-muted/40 px-5 py-4 text-sm">
+                <div class="grid w-full gap-4 rounded-xl border border-border bg-muted/40 px-5 py-4 text-sm sm:grid-cols-3 sm:items-center">
                     <div>
                         <div class="text-xs text-muted-foreground">Items selected</div>
                         <div class="text-lg font-semibold">{itemsSelected}</div>
@@ -315,7 +315,7 @@
             </CardFooter>
         </Card>
 
-        <Card class="lg:sticky lg:top-6 border border-border bg-card/95 shadow-sm">
+        <Card class="border border-border bg-card/95 shadow-sm lg:sticky lg:top-6">
             <CardHeader>
                 <CardTitle>Purchase details</CardTitle>
                 <CardDescription>Room details and cart summary.</CardDescription>

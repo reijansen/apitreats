@@ -7,6 +7,10 @@
 	const hideNav = $derived(pathname.startsWith('/officer'));
 </script>
 
+<svelte:body
+	class="bg-[linear-gradient(180deg,_#ffffff_0%,_#d0ded8_100%)] bg-fixed selection:bg-[#85aa9b] selection:text-white"
+/>
+
 {#if !hideNav}
 	<header class="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
 		<nav class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:h-14 sm:flex-nowrap">

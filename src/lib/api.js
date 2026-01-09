@@ -97,28 +97,59 @@ export const api = {
         let query = supabase
             .from('purchase_items')
             .select(
-                'id, quantity, line_total, unit_price_at_time, purchase:purchases(id, room_number, created_at), item:items(name)'
+                'id, purchase_id, item_id, quantity, line_total, unit_price_at_time, purchase:purchase_id(id, room_number, created_at), item:item_id(name)'
             )
-            .order('created_at', { foreignTable: 'purchases', ascending: false });
+            .order('created_at', { foreignTable: 'purchase', ascending: false });
         if (date) {
             const start = `${date}T00:00:00`;
             const end = `${date}T23:59:59`;
-            query = query.gte('purchases.created_at', start).lte('purchases.created_at', end);
+            query = query.gte('purchase.created_at', start).lte('purchase.created_at', end);
         }
         if (room_number) {
-            query = query.eq('purchases.room_number', room_number);
+            query = query.eq('purchase.room_number', room_number);
         }
         const { data, error } = await query;
         handleError(error, 'Failed to load purchases.');
-        return (data || []).map((row) => ({
-            id: row.purchase?.id || row.id,
-            room_number: row.purchase?.room_number,
-            product_name: row.item?.name || 'Unknown',
-            quantity: row.quantity,
-            total_amount: row.line_total,
-            cost_total: null,
-            created_at: row.purchase?.created_at,
-        }));
+        const rows = data || [];
+        const missingPurchaseIds = rows
+            .filter((row) => !row.purchase && row.purchase_id)
+            .map((row) => row.purchase_id);
+        const missingItemIds = rows
+            .filter((row) => !row.item && row.item_id)
+            .map((row) => row.item_id);
+
+        let purchaseMap = {};
+        let itemMap = {};
+
+        if (missingPurchaseIds.length > 0) {
+            const { data: purchasesData } = await supabase
+                .from('purchases')
+                .select('id, room_number, created_at')
+                .in('id', missingPurchaseIds);
+            purchaseMap = Object.fromEntries((purchasesData || []).map((p) => [p.id, p]));
+        }
+
+        if (missingItemIds.length > 0) {
+            const { data: itemsData } = await supabase
+                .from('items')
+                .select('id, name')
+                .in('id', missingItemIds);
+            itemMap = Object.fromEntries((itemsData || []).map((i) => [i.id, i]));
+        }
+
+        return rows.map((row) => {
+            const purchase = row.purchase || purchaseMap[row.purchase_id];
+            const item = row.item || itemMap[row.item_id];
+            return {
+                id: purchase?.id || row.id,
+                room_number: purchase?.room_number,
+                product_name: item?.name || 'Unknown',
+                quantity: row.quantity,
+                total_amount: row.line_total,
+                cost_total: null,
+                created_at: purchase?.created_at,
+            };
+        });
     },
 
     async updateProduct(id, product) {

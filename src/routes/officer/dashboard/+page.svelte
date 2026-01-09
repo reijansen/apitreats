@@ -49,7 +49,10 @@
     }
 
     function formatTime(dateStr) {
-        return new Date(dateStr).toLocaleTimeString();
+        if (!dateStr) return '—';
+        const date = new Date(dateStr);
+        if (Number.isNaN(date.getTime())) return '—';
+        return date.toLocaleTimeString();
     }
 
     function formatTotal(amount) {
