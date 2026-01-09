@@ -261,6 +261,11 @@
 </script>
 
 <main class="min-h-screen bg-muted/40 px-4 py-8 sm:px-6 lg:px-10">
+    <div class="mx-auto mb-6 w-full max-w-6xl">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition">
+            ← Back to home
+        </a>
+    </div>
     <div class="mx-auto grid w-full max-w-6xl items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
         <Card class="flex min-h-[calc(100vh-8rem)] flex-col border border-border bg-card/95 shadow-sm">
             <CardHeader>
