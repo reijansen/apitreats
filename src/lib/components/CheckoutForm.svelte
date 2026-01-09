@@ -8,13 +8,13 @@
     import CardTitle from './ui/card-title.svelte';
     import Input from './ui/input.svelte';
     import Label from './ui/label.svelte';
-    import { formatCurrency } from '$lib/formatting';
-    import { isValidRoomNumber } from '$lib/validation';
-    import { submitPurchase } from '$lib/cartService';
-    import { cartStore } from '$lib/cartStore';
-    import type { CartLine, Receipt, MessageType } from '$lib/types';
+    import { formatCurrency } from '$lib/formatting.js';
+    import { isValidRoomNumber } from '$lib/validation.js';
+    import { submitPurchase } from '$lib/cartService.js';
+    import { cart, clearCart } from '$lib/cartStore.js';
+    import type { CartLine, Receipt, MessageType, Item } from '$lib/types.js';
 
-    export let items = [];
+    export let items: Item[] = [];
 
     let roomNumber = '';
     let purchaserName = '';
@@ -32,20 +32,20 @@
     let canSubmit = false;
 
     $: {
-        cartLines = Object.entries($cartStore.cart)
-            .filter(([, qty]) => qty > 0)
-            .map(([itemId, qty]) => {
-                const item = items.find((row) => String(row.id) === String(itemId));
+        cartLines = Object.entries($cart)
+            .filter(([, qty]: [string, unknown]) => (qty as number) > 0)
+            .map(([itemId, qty]: [string, unknown]) => {
+                const item = items.find((row: Item) => String(row.id) === String(itemId));
                 if (!item) return null;
                 return {
                     item_id: item.id,
                     name: item.name,
                     unit_price: Number(item.retail_price || 0),
                     qty,
-                    line_total: Number(item.retail_price || 0) * qty,
-                };
+                    line_total: Number(item.retail_price || 0) * (qty as number),
+                } as CartLine;
             })
-            .filter((line) => line !== null);
+            .filter((line: CartLine | null): line is CartLine => line !== null);
 
         itemsSelected = cartLines.length;
         totalQuantity = cartLines.reduce((sum, line) => sum + Number(line.qty), 0);
@@ -77,7 +77,7 @@
             messageType = 'success';
 
             // Reset form
-            $cartStore.clearCart();
+            clearCart();
             roomNumber = '';
             purchaserName = '';
             notes = '';

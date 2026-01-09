@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient.js';
-import type { Item, CartLine, Receipt } from './types';
-import { normalizeError } from './validation';
+import type { Item, CartLine, Receipt } from './types.js';
+import { normalizeError } from './validation.js';
 
 export interface CheckoutPayload {
     item_id: Item['id'];

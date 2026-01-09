@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { formatCurrency } from '$lib/formatting';
-    import type { CartLine } from '$lib/types';
+    import { formatCurrency } from '$lib/formatting.js';
+    import type { CartLine } from '$lib/types.js';
 
     export let itemsSelected = 0;
     export let totalQuantity = 0;

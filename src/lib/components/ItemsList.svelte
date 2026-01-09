@@ -3,15 +3,18 @@
     import Input from './ui/input.svelte';
     import Label from './ui/label.svelte';
     import Select from './ui/select.svelte';
-    import { formatCurrency } from '$lib/formatting';
-    import { getStock } from '$lib/validation';
-    import { cartStore } from '$lib/cartStore';
-    import type { Item } from '$lib/types';
+    import { formatCurrency } from '$lib/formatting.js';
+    import { getStock } from '$lib/validation.js';
+    import { cart, quantityWarnings, getQty, setQty, updateQty, setWarning, clearWarning } from '$lib/cartStore.js';
+    import type { Item } from '$lib/types.js';
 
     export let items: Item[] = [];
     export let loadingItems = false;
     export let itemsError = '';
     export let sortedItems: Item[] = [];
+    export let itemsSelected = 0;
+    export let totalQuantity = 0;
+    export let subtotal = 0;
 
     let searchQuery = '';
     let sortOption = 'name-asc';
@@ -21,13 +24,13 @@
     $: categoryOptions = Array.from(
         new Map(
             items
-                .filter((item) => typeof item.category_name === 'string' && item.category_name.trim().length > 0)
-                .map((item) => [item.category_name, item.category_name])
+                .filter((item: Item) => typeof item.category_name === 'string' && item.category_name.trim().length > 0)
+                .map((item: Item) => [item.category_name as string, item.category_name as string])
         ).values()
     );
 
     $: {
-        const filtered = items.filter((item) => {
+        const filtered = items.filter((item: Item) => {
             const q = searchQuery.trim().toLowerCase();
             const category = categoryFilter.trim().toLowerCase();
             if (category && (item.category_name || '').toLowerCase() !== category) return false;
@@ -37,7 +40,7 @@
             return name.includes(q) || categoryName.includes(q);
         });
 
-        sortedItems = [...filtered].sort((a, b) => {
+        sortedItems = [...filtered].sort((a: Item, b: Item) => {
             if (sortOption === 'price-asc') return Number(a.retail_price) - Number(b.retail_price);
             if (sortOption === 'price-desc') return Number(b.retail_price) - Number(a.retail_price);
             if (sortOption === 'stock-desc') return Number(b.stock) - Number(a.stock);
@@ -52,29 +55,51 @@
     }
 
     function handleAddItem(item: Item) {
-        const current = $cartStore.getQty(item.id, $cartStore.cart);
+        const current = getQty(item.id, $cart);
         const available = getStock(item);
         if (available && current + 1 > available) {
-            $cartStore.setWarning(item.id, 'Max stock reached.');
+            setWarning(item.id, 'Max stock reached.');
         } else {
-            $cartStore.clearWarning(item.id);
-            $cartStore.updateQty(item.id, 1);
+            clearWarning(item.id);
+            updateQty(item.id, 1);
         }
     }
 
     function handleRemoveItem(item: Item) {
-        $cartStore.updateQty(item.id, -1);
+        updateQty(item.id, -1);
     }
 
     function handleSetQty(item: Item, qty: number) {
         const available = getStock(item);
         const validQty = Math.max(0, qty);
         if (available && validQty > available) {
-            $cartStore.setWarning(item.id, 'Max stock reached.');
+            setWarning(item.id, 'Max stock reached.');
         } else {
-            $cartStore.clearWarning(item.id);
+            clearWarning(item.id);
         }
-        $cartStore.setQty(item.id, validQty);
+        setQty(item.id, validQty);
+    }
+
+    // Compute cart stats
+    $: {
+        const cartLines = Object.entries($cart)
+            .filter(([, qty]: [string, unknown]) => (qty as number) > 0)
+            .map(([itemId, qty]: [string, unknown]) => {
+                const item = items.find((row: Item) => String(row.id) === String(itemId));
+                if (!item) return null;
+                return {
+                    item_id: item.id,
+                    name: item.name,
+                    unit_price: Number(item.retail_price || 0),
+                    qty,
+                    line_total: Number(item.retail_price || 0) * (qty as number),
+                };
+            })
+            .filter((line: any) => line !== null) as any[];
+
+        itemsSelected = cartLines.length;
+        totalQuantity = cartLines.reduce((sum: number, line: any) => sum + Number((line as any)?.qty), 0);
+        subtotal = cartLines.reduce((sum: number, line: any) => sum + Number((line as any)?.line_total), 0);
     }
 </script>
 
@@ -149,8 +174,8 @@
                                 >
                                     -
                                 </button>
-                                <div class="min-w-[2.5rem] text-center text-sm font-medium">
-                                    {$cartStore.getQty(item.id, $cartStore.cart)}
+                                <div class="min-w-10 text-center text-sm font-medium">
+                                    {getQty(item.id, $cart)}
                                 </div>
                                 <button
                                     type="button"
@@ -162,8 +187,8 @@
                                 </button>
                             </div>
                         </div>
-                        {#if $cartStore.quantityWarnings[item.id]}
-                            <div class="w-full text-xs text-destructive">{$cartStore.quantityWarnings[item.id]}</div>
+                        {#if $quantityWarnings[item.id]}
+                            <div class="w-full text-xs text-destructive">{$quantityWarnings[item.id]}</div>
                         {/if}
                     </div>
                 {/each}

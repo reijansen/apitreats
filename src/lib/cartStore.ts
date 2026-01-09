@@ -1,5 +1,5 @@
-import { writable, derived } from 'svelte/store';
-import type { Item, CartLine } from './types';
+import { writable } from 'svelte/store';
+import type { Item } from './types.js';
 
 function createCartStore() {
     const cart = writable<Record<string, number>>({});
@@ -67,4 +67,4 @@ function createCartStore() {
     };
 }
 
-export const cartStore = createCartStore();
+export const { cart, quantityWarnings, getCartKey, getQty, setQty, updateQty, setWarning, clearWarning, clearCart } = createCartStore();
