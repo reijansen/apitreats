@@ -1,97 +1,171 @@
-<main class="min-h-screen bg-muted/40 px-4 py-10 sm:px-6 lg:px-10">
-    <section class="mx-auto flex w-full max-w-6xl flex-col gap-10">
-        <div class="grid items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <div class="space-y-6">
-                <div class="inline-flex items-center gap-2 rounded-full border border-border bg-background/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Campus treats and essentials
-                </div>
-                <h1 class="text-3xl font-semibold leading-tight text-foreground sm:text-4xl lg:text-5xl">
-                    ApiTreats makes late-night cravings simple.
-                </h1>
-                <p class="max-w-xl text-base text-muted-foreground sm:text-lg">
-                    Browse the kiosk inventory, request items in seconds, and let our officers handle the rest. Your
-                    room snacks are a tap away.
-                </p>
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+<script lang="ts">
+    import { onMount } from 'svelte';
+    import { loadItems } from '$lib/cartService.js';
+    import type { Item } from '$lib/types.js';
+
+    let items: Item[] = [];
+    let loading = true;
+    let popularItems: Item[] = [];
+
+    onMount(async () => {
+        const { items: loadedItems } = await loadItems();
+        items = loadedItems;
+        // Show first 3 items as "popular picks"
+        popularItems = items.slice(0, 3);
+        loading = false;
+    });
+</script>
+
+<main class="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 px-4 py-12 sm:px-6 lg:px-8">
+    <!-- Hero Section -->
+    <section class="mx-auto max-w-7xl space-y-16">
+        <!-- Header -->
+        <div class="space-y-4 text-center lg:text-left">
+            <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 shadow-sm backdrop-blur-sm">
+                <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                UPV Balay Kanlaon
+            </div>
+            <h1 class="text-4xl font-bold leading-tight text-slate-900 sm:text-5xl lg:text-6xl">
+                <span class="text-green-600">ApiTreats</span> — Order smarter
+            </h1>
+            <p class="mx-auto max-w-2xl text-lg text-slate-600 sm:text-xl lg:mx-0">
+                The honesty store app for UPV Balay Kanlaon residents. Order snacks and essentials from your room. Fast checkout, live inventory, and instant receipts.
+            </p>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <!-- Left: CTA and Features -->
+            <div class="space-y-8">
+                <!-- CTA Buttons -->
+                <div class="flex flex-col gap-3 sm:flex-row">
                     <a
                         href="/shop"
-                        class="inline-flex h-11 items-center justify-center rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        class="inline-flex h-12 items-center justify-center rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 text-base font-semibold text-white shadow-lg transition hover:shadow-xl hover:from-green-700 hover:to-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                     >
-                        Start shopping
+                        Browse inventory
                     </a>
                     <a
                         href="/officer/login"
-                        class="inline-flex h-11 items-center justify-center rounded-md border border-input bg-background px-5 text-sm font-semibold text-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        class="inline-flex h-12 items-center justify-center rounded-lg border-2 border-slate-300 bg-white px-6 text-base font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
                     >
-                        Officer sign in
+                        Officer login
                     </a>
                 </div>
-                <div class="grid gap-4 text-sm text-muted-foreground sm:grid-cols-3">
-                    <div class="rounded-lg border border-border bg-background/70 px-4 py-3">
-                        <div class="text-base font-semibold text-foreground">Fast pickup</div>
-                        <div>Requests routed instantly to the kiosk.</div>
+
+                <!-- Feature Cards -->
+                <div class="grid gap-4 sm:grid-cols-3">
+                    <div class="rounded-xl border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:shadow-md">
+                        <div class="mb-2 text-2xl">⚡</div>
+                        <div class="font-semibold text-slate-900">Instant orders</div>
+                        <div class="text-sm text-slate-600">Place orders in seconds, delivered to your room.</div>
                     </div>
-                    <div class="rounded-lg border border-border bg-background/70 px-4 py-3">
-                        <div class="text-base font-semibold text-foreground">Live inventory</div>
-                        <div>Only see what is in stock right now.</div>
+                    <div class="rounded-xl border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:shadow-md">
+                        <div class="mb-2 text-2xl">📦</div>
+                        <div class="font-semibold text-slate-900">Live inventory</div>
+                        <div class="text-sm text-slate-600">Only see items currently available at the kiosk.</div>
                     </div>
-                    <div class="rounded-lg border border-border bg-background/70 px-4 py-3">
-                        <div class="text-base font-semibold text-foreground">Clear totals</div>
-                        <div>Room-ready receipts and summaries.</div>
+                    <div class="rounded-xl border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:shadow-md">
+                        <div class="mb-2 text-2xl">✅</div>
+                        <div class="font-semibold text-slate-900">Clear totals</div>
+                        <div class="text-sm text-slate-600">Get instant receipts and detailed summaries.</div>
                     </div>
                 </div>
+
+                <!-- How It Works -->
+                <div class="rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+                    <h3 class="mb-4 text-lg font-semibold text-slate-900">How it works</h3>
+                    <ol class="space-y-4">
+                        {#each [
+                            ['Browse', 'Check out all available snacks and essentials in real time.'],
+                            ['Order', 'Add items to your cart and confirm your room number.'],
+                            ['Pickup', 'Get a receipt and receive your order at the kiosk.']
+                        ] as [step, desc], i}
+                            <li class="flex gap-4">
+                                <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700">
+                                    {i + 1}
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-slate-900">{step}</div>
+                                    <div class="text-sm text-slate-600">{desc}</div>
+                                </div>
+                            </li>
+                        {/each}
+                    </ol>
+                </div>
             </div>
-            <div class="rounded-3xl border border-border bg-background/80 p-6 shadow-sm">
-                <div class="space-y-5">
-                    <div class="rounded-2xl border border-border bg-muted/40 p-4">
-                        <div class="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Popular picks</div>
-                        <div class="mt-3 space-y-3">
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="font-medium text-foreground">Bottled Water</span>
-                                <span class="text-muted-foreground">PHP 20</span>
-                            </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="font-medium text-foreground">Cup Noodles</span>
-                                <span class="text-muted-foreground">PHP 35</span>
-                            </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="font-medium text-foreground">Energy Bar</span>
-                                <span class="text-muted-foreground">PHP 45</span>
-                            </div>
+
+            <!-- Right: Popular Picks -->
+            <div class="space-y-6">
+                <div class="rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+                    <div class="mb-5 flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-slate-900">Popular picks</h3>
+                        <span class="text-2xl">🔥</span>
+                    </div>
+                    {#if loading}
+                        <div class="space-y-3">
+                            {#each [1, 2, 3] as _}
+                                <div class="h-12 rounded-lg bg-slate-100 animate-pulse"></div>
+                            {/each}
                         </div>
-                    </div>
-                    <div class="rounded-2xl border border-border bg-muted/40 p-4">
-                        <div class="text-xs font-semibold uppercase tracking-widest text-muted-foreground">How it works</div>
-                        <ol class="mt-3 space-y-2 text-sm text-muted-foreground">
-                            <li class="flex items-start gap-3">
-                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">1</span>
-                                Browse the live kiosk inventory.
+                    {:else if popularItems.length > 0}
+                        <div class="space-y-3">
+                            {#each popularItems as item}
+                                <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3 transition hover:bg-slate-100">
+                                    <div>
+                                        <div class="font-medium text-slate-900">{item.name}</div>
+                                        <div class="text-xs text-slate-500">{item.category_name || 'Uncategorized'}</div>
+                                    </div>
+                                    <div class="text-sm font-semibold text-green-600">₱{item.retail_price}</div>
+                                </div>
+                            {/each}
+                        </div>
+                        <a
+                            href="/shop"
+                            class="mt-4 block w-full rounded-lg bg-slate-100 py-2 text-center text-sm font-semibold text-slate-900 transition hover:bg-slate-200"
+                        >
+                            View all items →
+                        </a>
+                    {:else}
+                        <div class="rounded-lg bg-slate-50 p-4 text-center text-sm text-slate-600">
+                            No items available right now.
+                        </div>
+                    {/if}
+                </div>
+
+                <!-- Why Choose Card -->
+                <div class="rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+                    <h3 class="mb-4 text-lg font-semibold text-slate-900">Why Balay Kanlaon residents love it</h3>
+                    <ul class="space-y-3">
+                        {#each [
+                            'No more late-night convenience store trips',
+                            'Support your hall while studying late',
+                            'Clear pricing, no hidden charges',
+                            'Officer-verified inventory'
+                        ] as benefit}
+                            <li class="flex gap-3 text-sm">
+                                <span class="text-green-600">✓</span>
+                                <span class="text-slate-700">{benefit}</span>
                             </li>
-                            <li class="flex items-start gap-3">
-                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">2</span>
-                                Add items and confirm your room.
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">3</span>
-                                Receive a receipt right away.
-                            </li>
-                        </ol>
-                    </div>
+                        {/each}
+                    </ul>
                 </div>
             </div>
         </div>
-        <div class="grid gap-4 rounded-2xl border border-border bg-background/80 p-6 text-sm text-muted-foreground md:grid-cols-3">
+
+        <!-- Footer Section -->
+        <div class="grid gap-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-green-50 to-emerald-50 p-6 text-sm text-slate-700 md:grid-cols-3 shadow-sm">
             <div>
-                <div class="text-base font-semibold text-foreground">Student-first</div>
-                <div>Designed for dorm access and quick checkout.</div>
+                <div class="font-semibold text-slate-900">For residents</div>
+                <div>Order anytime, pickup at the kiosk.</div>
             </div>
             <div>
-                <div class="text-base font-semibold text-foreground">Secure logging</div>
-                <div>Officer workflows keep inventory updated.</div>
+                <div class="font-semibold text-slate-900">Honesty system</div>
+                <div>Transparent pricing and officer logging.</div>
             </div>
             <div>
-                <div class="text-base font-semibold text-foreground">Always available</div>
-                <div>Order anytime during kiosk hours.</div>
+                <div class="font-semibold text-slate-900">Community-run</div>
+                <div>Supporting UPV Balay Kanlaon residents.</div>
             </div>
         </div>
     </section>
