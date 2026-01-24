@@ -44,4 +44,27 @@
     @apply text-accent-foreground;
   }
 
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f5f4 !important;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5d1 !important;
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a3ada8 !important;
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-color: #cbd5d1 #f1f5f4;
+    scrollbar-width: thin;
+  }
 }

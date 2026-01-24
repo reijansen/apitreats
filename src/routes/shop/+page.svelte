@@ -8,6 +8,10 @@
     let items: Item[] = [];
     let loadingItems = true;
     let itemsError = '';
+    let sortedItems: Item[] = [];
+    let itemsSelected = 0;
+    let totalQuantity = 0;
+    let subtotal = 0;
 
     onMount(async () => {
         const { items: loadedItems, error } = await loadItems();
@@ -30,10 +34,10 @@
     </div>
 
     <!-- Main Content -->
-    <div class="mx-auto max-w-7xl">
+    <div class="mx-auto max-w-7xl px-2">
         <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
             <!-- Items List -->
-            <div class="rounded-2xl border border-slate-300 bg-white shadow-md overflow-hidden">
+            <div class="rounded-2xl border border-slate-300 bg-white shadow-md overflow-hidden flex flex-col">
                 <ItemsList 
                     {items} 
                     {loadingItems} 
@@ -46,7 +50,7 @@
             </div>
 
             <!-- Checkout Form -->
-            <div>
+            <div class="flex flex-col">
                 <CheckoutForm {items} />
             </div>
         </div>

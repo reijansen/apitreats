@@ -1,15 +1,6 @@
 <script>
     import { api } from '$lib/api.js';
     import { goto } from '$app/navigation';
-    import Button from '$lib/components/ui/button.svelte';
-    import Card from '$lib/components/ui/card.svelte';
-    import CardContent from '$lib/components/ui/card-content.svelte';
-    import CardDescription from '$lib/components/ui/card-description.svelte';
-    import CardFooter from '$lib/components/ui/card-footer.svelte';
-    import CardHeader from '$lib/components/ui/card-header.svelte';
-    import CardTitle from '$lib/components/ui/card-title.svelte';
-    import Input from '$lib/components/ui/input.svelte';
-    import Label from '$lib/components/ui/label.svelte';
 
     let email = '';
     let password = '';
@@ -36,29 +27,30 @@
 
 </script>
 
-<header class="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
+<header class="sticky top-0 z-10 border-b border-slate-300 bg-white shadow-sm">
     <nav class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:h-14 sm:flex-nowrap">
-        <div class="text-base font-semibold tracking-tight text-primary">ApiTreats</div>
+        <div class="text-lg font-bold tracking-tight text-slate-900">ApiTreats</div>
         <a
             href="/"
-            class="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            class="inline-flex h-9 items-center justify-center rounded-md bg-green-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
         >
-            Back to Dormer Purchases
+            Back to Shop
         </a>
     </nav>
 </header>
 
-<main class="min-h-[calc(100vh-56px)] px-4 py-10">
-    <Card class="mx-auto w-full max-w-md">
-        <CardHeader>
-            <CardTitle>Officer Login</CardTitle>
-            <CardDescription>Use your officer account to manage inventory.</CardDescription>
-        </CardHeader>
-        <form on:submit|preventDefault={login} aria-busy={submitting}>
-            <CardContent class="space-y-4">
+<main class="min-h-[calc(100vh-56px)] bg-gradient-to-b from-white to-slate-100 px-4 py-12">
+    <div class="mx-auto w-full max-w-md">
+        <div class="rounded-2xl border border-slate-300 bg-white shadow-md p-6 space-y-6">
+            <div class="space-y-2">
+                <h1 class="text-3xl font-bold text-slate-900">Officer Login</h1>
+                <p class="text-slate-600">Manage inventory and view analytics</p>
+            </div>
+
+            <form on:submit|preventDefault={login} aria-busy={submitting} class="space-y-4">
                 <div class="space-y-2">
-                    <Label for="email-input">Email</Label>
-                    <Input
+                    <label for="email-input" class="block text-sm font-semibold text-slate-900">Email</label>
+                    <input
                         id="email-input"
                         name="email"
                         type="email"
@@ -66,54 +58,40 @@
                         autocomplete="username"
                         autofocus
                         required
+                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder-slate-500 transition hover:border-slate-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                        placeholder="you@example.com"
                     />
                 </div>
+
                 <div class="space-y-2">
-                    <Label for="password-input">Password</Label>
+                    <label for="password-input" class="block text-sm font-semibold text-slate-900">Password</label>
                     <div class="relative">
-                        <Input
+                        <input
                             id="password-input"
                             name="password"
                             type={showPassword ? 'text' : 'password'}
                             bind:value={password}
                             autocomplete="current-password"
                             required
-                            class="pr-10"
+                            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 pr-10 text-slate-900 placeholder-slate-500 transition hover:border-slate-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                            placeholder="••••••••"
                         />
                         <button
                             type="button"
-                            class="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                            class="absolute right-3 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-slate-600 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
                             on:click={() => (showPassword = !showPassword)}
                             aria-pressed={showPassword}
                             aria-label={showPassword ? 'Hide password' : 'Show password'}
                         >
                             {#if showPassword}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="h-4 w-4"
-                                >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
                                     <path d="M17.94 17.94A10.4 10.4 0 0 1 12 20c-5 0-9.27-3.11-11-7.5a12.3 12.3 0 0 1 4.29-5.5"></path>
                                     <path d="M9.9 4.24A10.4 10.4 0 0 1 12 4c5 0 9.27 3.11 11 7.5a12.3 12.3 0 0 1-4.29 5.5"></path>
                                     <path d="M14.12 14.12a3 3 0 0 1-4.24-4.24"></path>
                                     <path d="M1 1l22 22"></path>
                                 </svg>
                             {:else}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="h-4 w-4"
-                                >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
                                     <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
@@ -121,26 +99,28 @@
                         </button>
                     </div>
                 </div>
-            </CardContent>
-            <CardFooter class="flex flex-col items-start gap-3 text-left">
-                <Button class="w-full" type="submit" disabled={submitting}>
-                    {submitting ? 'Signing in...' : 'Login'}
-                </Button>
-                <div class="flex w-full flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
-                    <a class="text-primary underline-offset-4 hover:underline" href="/officer/signup">
-                        No account? Sign Up
-                    </a>
-                    <a
-                        class="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                        href="/officer/forgot"
-                    >
-                        Forgot Password?
-                    </a>
-                </div>
+
+                <button
+                    type="submit"
+                    disabled={submitting}
+                    class="w-full rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 text-base font-semibold text-white shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >
+                    {submitting ? 'Signing in...' : 'Sign In'}
+                </button>
+
                 {#if error}
-                    <p class="text-sm text-destructive" role="status" aria-live="polite">{error}</p>
+                    <p class="rounded-lg bg-red-50 p-3 text-sm text-red-700" role="status" aria-live="polite">{error}</p>
                 {/if}
-            </CardFooter>
-        </form>
-    </Card>
+            </form>
+
+            <div class="flex items-center justify-between border-t border-slate-200 pt-4 text-sm">
+                <a href="/officer/signup" class="text-slate-600 hover:text-green-600 transition">
+                    No account? Sign Up
+                </a>
+                <a href="/officer/forgot" class="text-slate-600 hover:text-green-600 transition">
+                    Forgot Password?
+                </a>
+            </div>
+        </div>
+    </div>
 </main>

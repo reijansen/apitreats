@@ -90,57 +90,83 @@
     }
 </script>
 
-<Card class="border border-border bg-card/95 shadow-sm lg:sticky lg:top-6">
-    <CardHeader>
-        <CardTitle>Purchase details</CardTitle>
-        <CardDescription>Room details and cart summary.</CardDescription>
+<Card class="border border-slate-300 bg-white shadow-md h-fit lg:sticky lg:top-6 px-2">
+    <CardHeader class="border-b border-slate-200 pb-4">
+        <CardTitle class="text-lg">Purchase Details</CardTitle>
+        <CardDescription class="text-sm">Room info and cart summary</CardDescription>
     </CardHeader>
-    <CardContent class="space-y-4">
-        <div class="space-y-2">
-            <Label for="room-number">Room Number</Label>
-            <Input
-                id="room-number"
-                name="roomNumber"
-                type="text"
-                bind:value={roomNumber}
-                inputmode="numeric"
-                pattern="[0-9]*"
-                placeholder="e.g. 214"
-                aria-invalid={!isRoomValid && roomNumber ? 'true' : 'false'}
-                required
-            />
+    <CardContent class="space-y-6 pt-6 px-2">
+        <div class="space-y-4">
+            <div class="space-y-2">
+                <Label for="room-number" class="font-semibold text-slate-700">Room Number <span class="text-red-500">*</span></Label>
+                <Input
+                    id="room-number"
+                    name="roomNumber"
+                    type="text"
+                    bind:value={roomNumber}
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="e.g. 214"
+                    aria-invalid={!isRoomValid && roomNumber ? 'true' : 'false'}
+                    required
+                    class="bg-slate-50 border-slate-300"
+                />
+                {#if roomNumber && !isRoomValid}
+                    <p class="text-xs text-red-500">Please enter a valid room number</p>
+                {/if}
+            </div>
+            <div class="space-y-2">
+                <Label for="purchaser-name" class="font-semibold text-slate-700">Name <span class="text-slate-500">(optional)</span></Label>
+                <Input 
+                    id="purchaser-name" 
+                    bind:value={purchaserName} 
+                    placeholder="Your name" 
+                    class="bg-slate-50 border-slate-300"
+                />
+            </div>
+            <div class="space-y-2">
+                <Label for="notes" class="font-semibold text-slate-700">Notes <span class="text-slate-500">(optional)</span></Label>
+                <Input 
+                    id="notes" 
+                    bind:value={notes} 
+                    placeholder="For study group, event, etc." 
+                    class="bg-slate-50 border-slate-300"
+                />
+            </div>
         </div>
-        <div class="space-y-2">
-            <Label for="purchaser-name">Name (optional)</Label>
-            <Input id="purchaser-name" bind:value={purchaserName} placeholder="Your name" />
-        </div>
-        <div class="space-y-2">
-            <Label for="notes">Notes / purpose (optional)</Label>
-            <Input id="notes" bind:value={notes} placeholder="For study group, event, etc." />
-        </div>
-        <div class="space-y-2">
-            <div class="text-sm font-semibold">Cart summary</div>
+
+        <div class="border-t border-slate-200 pt-4">
+            <h3 class="font-semibold text-slate-900 mb-3">Cart Summary</h3>
             {#if cartLines.length === 0}
-                <p class="text-sm text-muted-foreground">No items selected.</p>
+                <p class="text-sm text-slate-500">No items selected.</p>
             {:else}
-                <div class="space-y-2">
+                <div class="space-y-2 mb-4">
                     {#each cartLines as line}
                         <div class="flex items-center justify-between text-sm">
-                            <div>{line.name} x {line.qty}</div>
-                            <div class="font-medium">{formatCurrency(line.line_total)}</div>
+                            <div class="text-slate-700">{line.name} <span class="text-slate-500">x{line.qty}</span></div>
+                            <div class="font-semibold text-slate-900">{formatCurrency(line.line_total)}</div>
                         </div>
                     {/each}
+                </div>
+                <div class="border-t border-slate-200 pt-3 flex items-center justify-between">
+                    <span class="font-semibold text-slate-900">Subtotal</span>
+                    <span class="text-lg font-bold text-slate-900">{formatCurrency(subtotal)}</span>
                 </div>
             {/if}
         </div>
     </CardContent>
-    <CardFooter class="flex flex-col gap-3">
-        <Button class="w-full" type="button" disabled={!canSubmit} on:click={handleSubmit}>
-            {submitting ? 'Submitting...' : 'Submit purchase'}
+    <CardFooter class="flex flex-col gap-3 border-t border-slate-200 pt-4 px-2">
+        <Button 
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-10" 
+            type="button" 
+            disabled={!canSubmit} 
+            on:click={handleSubmit}
+        >
+            {submitting ? 'Submitting...' : 'Submit Purchase'}
         </Button>
         {#if message}
             <p
-                class={`text-center text-sm ${messageType === 'error' ? 'text-destructive' : messageType === 'success' ? 'text-emerald-600' : ''}`}
+                class={`text-center text-sm font-medium ${messageType === 'error' ? 'text-red-600' : messageType === 'success' ? 'text-green-600' : 'text-blue-600'}`}
                 role="status"
                 aria-live="polite"
             >
@@ -148,13 +174,15 @@
             </p>
         {/if}
         {#if receipt}
-            <div class="w-full rounded-md border border-border bg-background p-3 text-sm">
-                <div class="font-semibold">Receipt summary</div>
-                <div class="mt-2 flex items-center justify-between">
-                    <span>Total due</span>
-                    <span>{formatCurrency(receipt.total_amount)}</span>
+            <div class="w-full rounded-md border border-green-200 bg-green-50 p-4 text-sm">
+                <div class="font-semibold text-green-900 mb-3">✓ Receipt Summary</div>
+                <div class="flex items-center justify-between text-green-900 mb-2">
+                    <span>Total Amount</span>
+                    <span class="font-bold text-lg">{formatCurrency(receipt.total_amount)}</span>
                 </div>
-                <div class="mt-1 text-xs text-muted-foreground">Reference: {receipt.purchase_id}</div>
+                <div class="text-xs text-green-700 border-t border-green-200 pt-2">
+                    ID: <span class="font-mono">{receipt.purchase_id}</span>
+                </div>
             </div>
         {/if}
     </CardFooter>

@@ -15,7 +15,7 @@ create table if not exists public.item_categories (
 create table if not exists public.items (
     id uuid primary key default gen_random_uuid(),
     name text not null,
-    category_id uuid nullable references public.item_categories(id) on delete set null,
+    category_id uuid references public.item_categories(id) on delete set null,
     unit text default 'pcs',
     retail_price numeric(12,2) not null default 0,
     is_active boolean default true,
@@ -184,6 +184,7 @@ drop policy if exists "inventory_batches_select_officers" on public.inventory_ba
 drop policy if exists "inventory_batches_insert_officers" on public.inventory_batches;
 drop policy if exists "stock_movements_select_officers" on public.stock_movements;
 drop policy if exists "stock_movements_insert_officers" on public.stock_movements;
+drop policy if exists "profiles_select_own" on public.profiles;
 
 grant select on public.item_stock_view to authenticated;
 
@@ -266,4 +267,3 @@ on public.stock_movements
 for insert
 to authenticated
 with check (public.is_officer(auth.uid()));
-drop policy if exists "profiles_select_own" on public.profiles;

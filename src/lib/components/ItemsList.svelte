@@ -103,83 +103,93 @@
     }
 </script>
 
-<div class="flex flex-col gap-4">
-    <div class="grid w-full gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,1fr)_auto] xl:items-end">
-        <div class="space-y-1.5">
-            <Label for="search-items" class="text-xs uppercase tracking-wide text-muted-foreground">Search</Label>
-            <Input
-                id="search-items"
-                placeholder="Search items"
-                bind:value={searchQuery}
-                class="w-full"
-                aria-label="Search items"
-            />
+<div class="flex flex-col h-full p-6 gap-6">
+    <!-- Filters Section -->
+    <div class="space-y-4">
+        <div class="grid w-full gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div class="space-y-2">
+                <Label for="search-items" class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Search</Label>
+                <Input
+                    id="search-items"
+                    placeholder="Search items..."
+                    bind:value={searchQuery}
+                    class="w-full bg-slate-50 border-slate-300"
+                    aria-label="Search items"
+                />
+            </div>
+            <div class="space-y-2">
+                <Label for="sort-items" class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Sort By</Label>
+                <Select id="sort-items" bind:value={sortOption} class="h-10 w-full bg-slate-50 border-slate-300" aria-label="Sort items">
+                    <option value="name-asc">Alphabetical (A-Z)</option>
+                    <option value="price-asc">Price (Low to High)</option>
+                    <option value="price-desc">Price (High to Low)</option>
+                    <option value="stock-desc">Stock (High to Low)</option>
+                </Select>
+            </div>
+            <div class="space-y-2">
+                <Label for="filter-category" class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Category</Label>
+                <Select id="filter-category" bind:value={categoryFilter} class="h-10 w-full bg-slate-50 border-slate-300" aria-label="Filter by category">
+                    <option value="">All categories</option>
+                    {#each categoryOptions as category}
+                        <option value={category}>{category}</option>
+                    {/each}
+                </Select>
+            </div>
         </div>
-        <div class="space-y-1.5">
-            <Label for="sort-items" class="text-xs uppercase tracking-wide text-muted-foreground">Sort</Label>
-            <Select id="sort-items" bind:value={sortOption} class="h-10 w-full" aria-label="Sort items">
-                <option value="name-asc">Alphabetical (A-Z)</option>
-                <option value="price-asc">Price (low)</option>
-                <option value="price-desc">Price (high)</option>
-                <option value="stock-desc">Stock (high)</option>
-            </Select>
-        </div>
-        <div class="space-y-1.5">
-            <Label for="filter-category" class="text-xs uppercase tracking-wide text-muted-foreground">Category</Label>
-            <Select id="filter-category" bind:value={categoryFilter} class="h-10 w-full" aria-label="Filter by category">
-                <option value="">All categories</option>
-                {#each categoryOptions as category}
-                    <option value={category}>{category}</option>
-                {/each}
-            </Select>
-        </div>
-        <Button type="button" variant="outline" on:click={resetFilters} class="h-10 w-full xl:w-auto">Reset filters</Button>
+        <Button type="button" variant="outline" on:click={resetFilters} class="h-9 px-4 text-sm border-slate-300">Reset Filters</Button>
     </div>
 
+    <!-- Items List Section -->
     {#if loadingItems}
-        <p class="text-sm text-muted-foreground">Loading items...</p>
+        <div class="flex items-center justify-center py-12">
+            <p class="text-sm text-slate-500">Loading items...</p>
+        </div>
     {:else if itemsError}
-        <p class="text-sm text-destructive">Could not load items: {itemsError}</p>
+        <div class="rounded-lg bg-red-50 border border-red-200 p-4">
+            <p class="text-sm text-red-600 font-medium">Could not load items: {itemsError}</p>
+        </div>
     {:else if sortedItems.length === 0}
-        <p class="text-sm text-muted-foreground">No items match your filters.</p>
+        <div class="flex items-center justify-center py-12">
+            <p class="text-sm text-slate-500">No items match your filters.</p>
+        </div>
     {:else}
-        <div class="flex-1 overflow-y-auto rounded-xl border border-border bg-background/80">
-            <div class="divide-y divide-border">
+        <div class="flex-1 overflow-y-scroll rounded-lg border border-slate-200 bg-white min-h-0 shadow-sm" style="scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
+            <div class="divide-y divide-slate-200">
                 {#each sortedItems as item}
-                    <div class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-12 w-12 items-center justify-center rounded-lg border border-border bg-muted text-sm font-semibold text-muted-foreground">
-                                {item.name?.slice(0, 1) || '?'}
+                    <div class="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-4 flex-1 min-w-0">
+                            <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-300 text-base font-bold text-slate-700 shadow-sm">
+                                {item.name?.slice(0, 1)?.toUpperCase() || '?'}
                             </div>
-                            <div>
-                                <div class="font-medium">{item.name}</div>
-                                <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                                    <span class="rounded-full border border-border bg-muted/30 px-2 py-0.5 text-foreground/90">
+                            <div class="flex-1 min-w-0">
+                                <div class="font-semibold text-slate-900 text-base truncate">{item.name}</div>
+                                <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                                    <span class="inline-flex items-center rounded-full bg-slate-100 border border-slate-300 px-2.5 py-0.5 text-xs font-medium text-slate-700">
                                         {item.category_name || 'Uncategorized'}
                                     </span>
-                                    <span class="rounded-full border border-border bg-muted/30 px-2 py-0.5">
-                                        {getStock(item) > 0 ? `${getStock(item)} left` : 'Out of stock'}
+                                    <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStock(item) > 0 ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+                                        {getStock(item) > 0 ? `${getStock(item)} in stock` : 'Out of stock'}
                                     </span>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex w-full flex-wrap items-center justify-between gap-4 sm:w-auto sm:justify-end">
-                            <div class="text-sm font-semibold">{formatCurrency(item.retail_price)}</div>
-                            <div class="flex items-center overflow-hidden rounded-lg border border-border bg-background">
+                        <div class="flex items-center gap-4 sm:gap-6">
+                            <div class="text-base font-bold text-slate-900">{formatCurrency(item.retail_price)}</div>
+                            <div class="flex items-center rounded-lg border-2 border-slate-300 bg-white shadow-sm">
                                 <button
                                     type="button"
-                                    class="h-9 w-10 rounded-none border-r border-border text-base"
+                                    class="h-10 w-10 flex items-center justify-center border-r-2 border-slate-300 text-lg font-semibold text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
                                     on:click={() => handleRemoveItem(item)}
                                     aria-label={`Decrease ${item.name}`}
                                 >
-                                    -
+                                    −
                                 </button>
-                                <div class="min-w-10 text-center text-sm font-medium">
+                                <div class="min-w-12 text-center text-sm font-semibold text-slate-900">
                                     {getQty(item.id, $cart)}
                                 </div>
                                 <button
                                     type="button"
-                                    class="h-9 w-10 rounded-none border-l border-border text-base"
+                                    class="h-10 w-10 flex items-center justify-center border-l-2 border-slate-300 text-lg font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
                                     on:click={() => handleAddItem(item)}
                                     aria-label={`Increase ${item.name}`}
                                 >
@@ -188,7 +198,9 @@
                             </div>
                         </div>
                         {#if $quantityWarnings[item.id]}
-                            <div class="w-full text-xs text-destructive">{$quantityWarnings[item.id]}</div>
+                            <div class="w-full text-xs text-red-600 font-medium bg-red-50 border border-red-200 rounded px-2 py-1">
+                                ⚠ {$quantityWarnings[item.id]}
+                            </div>
                         {/if}
                     </div>
                 {/each}
