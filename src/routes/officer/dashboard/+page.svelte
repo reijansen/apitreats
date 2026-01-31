@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { api } from '$lib/api.js';
+    import { api } from '$lib/api.ts';
     import { connectWebSocket } from '$lib/websocket.js';
     import { getUserFriendlyError } from '$lib/errorMessages.js';
     import { onMount } from 'svelte';
@@ -123,7 +123,7 @@
         </div>
 
         <!-- Profit Card -->
-        <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
                 <svg class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -143,7 +143,7 @@
         </div>
 
         <!-- Transactions Card -->
-        <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
                 <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -156,7 +156,7 @@
         </div>
 
         <!-- Average Order Card -->
-        <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
                 <svg class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
@@ -172,15 +172,15 @@
     </div>
 
     <!-- Purchases Table -->
-    <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+    <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 px-4 sm:px-5 py-3 sm:py-4">
             <div>
-                <h2 class="text-lg font-semibold text-slate-900">Today's Purchases</h2>
-                <p class="text-sm text-slate-500">Live updates when new purchases are logged</p>
+                <h2 class="text-base sm:text-lg font-semibold text-slate-900">Today's Purchases</h2>
+                <p class="text-xs sm:text-sm text-slate-500">Live updates when new purchases are logged</p>
             </div>
             <button
                 type="button"
-                class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 w-full sm:w-auto"
                 onclick={loadPurchases}
                 disabled={loading}
             >
@@ -191,7 +191,7 @@
             </button>
         </div>
 
-        <div class="p-5">
+        <div class="p-3 sm:p-5">
             {#if loading}
                 <div class="flex flex-col items-center justify-center py-12">
                     <div class="h-8 w-8 animate-spin rounded-full border-4 border-green-200 border-t-green-600"></div>
@@ -218,37 +218,37 @@
                     <p class="mt-1 text-sm text-slate-500">Purchases will appear here as they're logged.</p>
                 </div>
             {:else}
-                <div class="overflow-x-auto">
-                    <table class="w-full">
+                <div class="overflow-x-auto -mx-3 sm:mx-0">
+                    <table class="w-full min-w-[400px]">
                         <thead>
                             <tr class="border-b border-slate-100">
-                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Room</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Product</th>
-                                <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Qty</th>
-                                <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Total</th>
-                                <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Time</th>
+                                <th class="px-3 sm:px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Room</th>
+                                <th class="px-3 sm:px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Product</th>
+                                <th class="px-3 sm:px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Qty</th>
+                                <th class="px-3 sm:px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Total</th>
+                                <th class="hidden sm:table-cell px-3 sm:px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Time</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
                             {#each purchases as purchase, i}
                                 <tr class={`transition hover:bg-slate-50 ${i === 0 ? 'bg-green-50/50' : ''}`}>
-                                    <td class="whitespace-nowrap px-4 py-3">
-                                        <span class="inline-flex items-center justify-center rounded-md bg-slate-100 px-2 py-1 text-sm font-medium text-slate-700">
+                                    <td class="whitespace-nowrap px-3 sm:px-4 py-2 sm:py-3">
+                                        <span class="inline-flex items-center justify-center rounded-md bg-slate-100 px-2 py-1 text-xs sm:text-sm font-medium text-slate-700">
                                             {purchase.room_number}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3">
-                                        <span class="font-medium text-slate-900">{purchase.product_name || purchase.product_id}</span>
+                                    <td class="px-3 sm:px-4 py-2 sm:py-3">
+                                        <span class="font-medium text-slate-900 text-sm">{purchase.product_name || purchase.product_id}</span>
                                     </td>
-                                    <td class="whitespace-nowrap px-4 py-3 text-center">
-                                        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-sm font-medium text-slate-700">
+                                    <td class="whitespace-nowrap px-3 sm:px-4 py-2 sm:py-3 text-center">
+                                        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs sm:text-sm font-medium text-slate-700">
                                             {purchase.quantity}
                                         </span>
                                     </td>
-                                    <td class="whitespace-nowrap px-4 py-3 text-right font-semibold text-slate-900">
+                                    <td class="whitespace-nowrap px-3 sm:px-4 py-2 sm:py-3 text-right font-semibold text-slate-900 text-sm">
                                         {formatTotal(purchase.total_amount)}
                                     </td>
-                                    <td class="whitespace-nowrap px-4 py-3 text-right text-sm text-slate-500">
+                                    <td class="hidden sm:table-cell whitespace-nowrap px-3 sm:px-4 py-2 sm:py-3 text-right text-sm text-slate-500">
                                         {formatTime(purchase.created_at)}
                                     </td>
                                 </tr>

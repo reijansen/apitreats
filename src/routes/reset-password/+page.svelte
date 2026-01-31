@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { supabase } from '$lib/supabaseClient.js';
+    import { base } from '$app/paths';
     import { getUserFriendlyError } from '$lib/errorMessages.js';
 
     let ready = false;
@@ -68,11 +69,7 @@
 <header class="sticky top-0 z-10 border-b border-green-100 bg-white/95 shadow-sm backdrop-blur-md">
     <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         <a href="/" class="group flex items-center gap-2.5 no-underline">
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-green-500 to-emerald-600 shadow-md shadow-green-200 transition-transform group-hover:scale-105">
-                <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-            </div>
+            <img src="{base}/ApiTreats.png" alt="ApiTreats Logo" class="h-8 w-8" />
             <span class="text-lg font-bold tracking-tight text-slate-900">
                 <span class="text-green-600">Api</span>Treats
             </span>

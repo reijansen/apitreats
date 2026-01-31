@@ -2,6 +2,7 @@
 <script lang="ts">
     import { supabase } from '$lib/supabaseClient.js';
     import { onMount } from 'svelte';
+    import { formatCurrency } from '$lib/formatting.js';
     import Button from '$lib/components/ui/button.svelte';
     import Card from '$lib/components/ui/card.svelte';
     import CardContent from '$lib/components/ui/card-content.svelte';
@@ -53,9 +54,16 @@
 
     let { data } = $props();
 
-    let items = $state((data?.items ?? []) as ItemRow[]);
-    let categories = $state((data?.categories ?? []) as Category[]);
-    let itemsError = $state(data?.itemsError ?? '');
+    let items = $state<ItemRow[]>([]);
+    let categories = $state<Category[]>([]);
+    let itemsError = $state('');
+
+    // Sync server data to local state on initial load and when data changes
+    $effect(() => {
+        if (data?.items) items = data.items as ItemRow[];
+        if (data?.categories) categories = data.categories as Category[];
+        if (data?.itemsError) itemsError = data.itemsError;
+    });
 
     let loading = $state(false);
     let statusMessage = $state('');
@@ -76,7 +84,7 @@
     let restockId = $state('');
     let detailsId = $state('');
 
-    let adjustQuantity = $state(1);
+    let adjustQuantity = $state('1');
     let adjustDirection = $state('remove');
     let adjustReason = $state('count correction');
     let adjustError = $state('');
@@ -142,15 +150,6 @@
             return String((err as { message?: unknown }).message || 'Unknown error');
         }
         return String(err || 'Unknown error');
-    }
-
-    function formatCurrency(amount: number | null | undefined) {
-        if (amount === null || amount === undefined || Number.isNaN(Number(amount))) return 'N/A';
-        return new Intl.NumberFormat('en-PH', {
-            style: 'currency',
-            currency: 'PHP',
-            maximumFractionDigits: 2,
-        }).format(Number(amount));
     }
 
     function formatDate(value: string | null) {
@@ -284,7 +283,7 @@
 
     function startAdjust(item?: ItemRow) {
         adjustId = item?.id || '';
-        adjustQuantity = 1;
+        adjustQuantity = '1';
         adjustDirection = 'remove';
         adjustReason = 'count correction';
         adjustError = '';
@@ -298,8 +297,8 @@
             adjustError = 'Choose an item to adjust.';
             return;
         }
-        const qty = Number(adjustQuantity);
-        if (!qty || qty < 1) {
+        const qty = parseInt(adjustQuantity, 10);
+        if (Number.isNaN(qty) || qty < 1) {
             adjustError = 'Quantity must be at least 1.';
             return;
         }

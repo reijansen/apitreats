@@ -1,5 +1,6 @@
 <script lang="ts">
     import { page } from '$app/stores';
+    import { base } from '$app/paths';
     import { onMount } from 'svelte';
 
     let scrolled = $state(false);
@@ -25,11 +26,7 @@
         <div class="flex h-16 items-center justify-between">
             <!-- Logo -->
             <a href="/" class="group flex items-center gap-2.5 no-underline">
-                <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-green-500 to-emerald-600 shadow-md shadow-green-200 transition-transform group-hover:scale-105">
-                    <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                </div>
+                <img src="{base}/ApiTreats.png" alt="ApiTreats Logo" class="h-9 w-9 transition-transform group-hover:scale-105" />
                 <span class="text-lg font-bold tracking-tight {scrolled || !isHome ? 'text-slate-900' : 'text-slate-800'}">
                     <span class="text-green-600">Api</span>Treats
                 </span>

@@ -1,6 +1,81 @@
 import { supabase } from './supabaseClient.js';
 
-function assertSupabaseConfigured() {
+// Types
+interface Product {
+    id: string;
+    name: string;
+    category?: string | null;
+    price: number | null;
+    cost?: number | null;
+    current_stock?: number;
+    is_active: boolean;
+    deleted_at?: string | null;
+}
+
+interface GetProductsOptions {
+    includeInactive?: boolean;
+    includeDeleted?: boolean;
+}
+
+interface PurchasePayload {
+    room_number: string;
+    product_id: string;
+    quantity: number;
+}
+
+interface LoginCredentials {
+    email: string;
+    password: string;
+}
+
+interface GetPurchasesParams {
+    date?: string;
+    room_number?: string;
+}
+
+interface ProductUpdate {
+    name?: string;
+    category?: string | null;
+    price?: number | null;
+    cost?: number | null;
+    current_stock?: number;
+    is_active?: boolean;
+    deleted_at?: string | null;
+}
+
+interface OfficerRequestPayload {
+    name: string;
+    position?: string | null;
+    room_number?: string | null;
+    email?: string | null;
+}
+
+interface RegisterOfficerPayload extends OfficerRequestPayload {
+    password: string;
+}
+
+interface StockUpdatePayload {
+    delta?: number;
+    current_stock?: number;
+}
+
+interface SupabaseError {
+    message: string;
+}
+
+interface PurchaseItem {
+    id: string;
+    purchase_id: string;
+    item_id: string;
+    quantity: number;
+    line_total: number;
+    unit_price_at_time: number;
+    purchase?: { id: string; room_number: string; created_at: string }[] | { id: string; room_number: string; created_at: string } | null;
+    item?: { name: string }[] | { name: string } | null;
+}
+
+// Helper functions
+function assertSupabaseConfigured(): void {
     if (!supabase) {
         throw new Error('Supabase client is not configured.');
     }
@@ -9,23 +84,24 @@ function assertSupabaseConfigured() {
     }
 }
 
-function handleError(error, fallback) {
+function handleError(error: SupabaseError | null, fallback: string): void {
     if (!error) return;
     throw new Error(error.message || fallback);
 }
 
-async function fetchProductById(productId) {
+async function fetchProductById(productId: string): Promise<Product> {
     const { data, error } = await supabase
         .from('products')
         .select('id, name, price, cost, is_active')
         .eq('id', productId)
         .single();
     handleError(error, 'Failed to load product.');
-    return data;
+    return data as Product;
 }
 
+// API object
 export const api = {
-    async getProducts(options = {}) {
+    async getProducts(options: GetProductsOptions = {}): Promise<Product[]> {
         assertSupabaseConfigured();
         const { includeInactive = false, includeDeleted = false } = options;
         let query = supabase.from('products').select('*').order('category', { ascending: true }).order('name');
@@ -37,10 +113,10 @@ export const api = {
         }
         const { data, error } = await query;
         handleError(error, 'Failed to load products.');
-        return data || [];
+        return (data || []) as Product[];
     },
 
-    async createPurchase(payload) {
+    async createPurchase(payload: PurchasePayload) {
         assertSupabaseConfigured();
         const { room_number, product_id, quantity } = payload;
         const product = await fetchProductById(product_id);
@@ -70,7 +146,7 @@ export const api = {
         };
     },
 
-    async login({ email, password }) {
+    async login({ email, password }: LoginCredentials) {
         assertSupabaseConfigured();
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
@@ -83,7 +159,7 @@ export const api = {
         return data.session;
     },
 
-    async requestPasswordReset(email, redirectTo) {
+    async requestPasswordReset(email: string, redirectTo?: string) {
         assertSupabaseConfigured();
         const options = redirectTo ? { redirectTo } : undefined;
         const { error } = await supabase.auth.resetPasswordForEmail(email, options);
@@ -91,7 +167,7 @@ export const api = {
         return true;
     },
 
-    async getPurchases(params = {}) {
+    async getPurchases(params: GetPurchasesParams = {}) {
         assertSupabaseConfigured();
         const { date, room_number } = params;
         let query = supabase
@@ -110,7 +186,7 @@ export const api = {
         }
         const { data, error } = await query;
         handleError(error, 'Failed to load purchases.');
-        const rows = data || [];
+        const rows = (data || []) as PurchaseItem[];
         const missingPurchaseIds = rows
             .filter((row) => !row.purchase && row.purchase_id)
             .map((row) => row.purchase_id);
@@ -118,15 +194,17 @@ export const api = {
             .filter((row) => !row.item && row.item_id)
             .map((row) => row.item_id);
 
-        let purchaseMap = {};
-        let itemMap = {};
+        let purchaseMap: Record<string, { id: string; room_number: string; created_at: string }> = {};
+        let itemMap: Record<string, { name: string }> = {};
 
         if (missingPurchaseIds.length > 0) {
             const { data: purchasesData } = await supabase
                 .from('purchases')
                 .select('id, room_number, created_at')
                 .in('id', missingPurchaseIds);
-            purchaseMap = Object.fromEntries((purchasesData || []).map((p) => [p.id, p]));
+            purchaseMap = Object.fromEntries(
+                ((purchasesData || []) as { id: string; room_number: string; created_at: string }[]).map((p) => [p.id, p])
+            );
         }
 
         if (missingItemIds.length > 0) {
@@ -134,12 +212,22 @@ export const api = {
                 .from('items')
                 .select('id, name')
                 .in('id', missingItemIds);
-            itemMap = Object.fromEntries((itemsData || []).map((i) => [i.id, i]));
+            itemMap = Object.fromEntries(
+                ((itemsData || []) as { id: string; name: string }[]).map((i) => [i.id, { name: i.name }])
+            );
         }
 
         return rows.map((row) => {
-            const purchase = row.purchase || purchaseMap[row.purchase_id];
-            const item = row.item || itemMap[row.item_id];
+            // Handle purchase - may be array or single object from Supabase
+            const rawPurchase = row.purchase;
+            const purchaseObj = Array.isArray(rawPurchase) ? rawPurchase[0] : rawPurchase;
+            const purchase = purchaseObj || purchaseMap[row.purchase_id];
+            
+            // Handle item - may be array or single object from Supabase
+            const rawItem = row.item;
+            const itemObj = Array.isArray(rawItem) ? rawItem[0] : rawItem;
+            const item = itemObj || itemMap[row.item_id];
+            
             return {
                 id: purchase?.id || row.id,
                 room_number: purchase?.room_number,
@@ -152,9 +240,9 @@ export const api = {
         });
     },
 
-    async updateProduct(id, product) {
+    async updateProduct(id: string, product: ProductUpdate): Promise<Product> {
         assertSupabaseConfigured();
-        const updates = {
+        const updates: ProductUpdate = {
             name: product.name,
             category: product.category,
             price: product.price,
@@ -170,10 +258,10 @@ export const api = {
             .select('*')
             .single();
         handleError(error, 'Failed to update product.');
-        return data;
+        return data as Product;
     },
 
-    async createProduct(product) {
+    async createProduct(product: ProductUpdate): Promise<Product> {
         assertSupabaseConfigured();
         const payload = {
             name: product.name,
@@ -189,10 +277,10 @@ export const api = {
             .select('*')
             .single();
         handleError(error, 'Failed to create product.');
-        return data;
+        return data as Product;
     },
 
-    async createOfficerRequest(payload) {
+    async createOfficerRequest(payload: OfficerRequestPayload) {
         assertSupabaseConfigured();
         const { data, error } = await supabase
             .from('officer_requests')
@@ -208,11 +296,11 @@ export const api = {
         return data;
     },
 
-    async registerOfficer(payload) {
+    async registerOfficer(payload: RegisterOfficerPayload) {
         assertSupabaseConfigured();
         const { email, password, name, position, room_number } = payload;
         const { data, error } = await supabase.auth.signUp({
-            email,
+            email: email!,
             password,
             options: {
                 data: {
@@ -232,7 +320,7 @@ export const api = {
         return data;
     },
 
-    async softDeleteProduct(id) {
+    async softDeleteProduct(id: string): Promise<Product> {
         assertSupabaseConfigured();
         const { data, error } = await supabase
             .from('products')
@@ -241,10 +329,10 @@ export const api = {
             .select('*')
             .single();
         handleError(error, 'Failed to archive product.');
-        return data;
+        return data as Product;
     },
 
-    async restoreProduct(id) {
+    async restoreProduct(id: string): Promise<Product> {
         assertSupabaseConfigured();
         const { data, error } = await supabase
             .from('products')
@@ -253,17 +341,17 @@ export const api = {
             .select('*')
             .single();
         handleError(error, 'Failed to restore product.');
-        return data;
+        return data as Product;
     },
 
-    async purgeProduct(id) {
+    async purgeProduct(id: string): Promise<boolean> {
         assertSupabaseConfigured();
         const { error } = await supabase.from('products').delete().eq('id', id);
         handleError(error, 'Failed to delete product.');
         return true;
     },
 
-    async updateStock(id, payload) {
+    async updateStock(id: string, payload: StockUpdatePayload): Promise<Product> {
         assertSupabaseConfigured();
         const { delta, current_stock } = payload;
         let nextStock = current_stock;
@@ -274,7 +362,9 @@ export const api = {
                 .eq('id', id)
                 .single();
             handleError(error, 'Failed to load stock.');
-            nextStock = Number(data.current_stock) + delta;
+            if (data) {
+                nextStock = Number(data.current_stock) + delta;
+            }
         }
         const { data, error } = await supabase
             .from('products')
@@ -283,6 +373,6 @@ export const api = {
             .select('*')
             .single();
         handleError(error, 'Failed to update stock.');
-        return data;
+        return data as Product;
     },
 };

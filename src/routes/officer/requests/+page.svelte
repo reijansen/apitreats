@@ -18,7 +18,7 @@
     let sortField = $state<keyof OfficerRequest>('created_at');
     let sortDirection = $state<'asc' | 'desc'>('desc');
 
-    const filteredRequests = $derived(() => {
+    const filteredRequests = $derived.by(() => {
         let filtered = requests;
 
         if (searchTerm.trim()) {
@@ -176,7 +176,7 @@
                 </div>
             </div>
         </div>
-    {:else if filteredRequests().length === 0}
+    {:else if filteredRequests.length === 0}
         <div class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
             <div class="flex flex-col items-center justify-center gap-3 text-center">
                 <svg class="h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -188,11 +188,11 @@
     {:else}
         <!-- Table -->
         <div class="overflow-hidden rounded-lg sm:rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div class="overflow-x-auto">
-                <table class="w-full">
+            <div class="overflow-x-auto -mx-3 sm:mx-0">
+                <table class="w-full min-w-[500px]">
                     <thead>
                         <tr class="border-b border-slate-100 bg-slate-50/50">
-                            <th class="px-6 py-4 text-left">
+                            <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">
                                 <button type="button" class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 transition hover:text-slate-900" onclick={() => toggleSort('name')}>
                                     <span>Applicant</span>
                                     {#if sortField === 'name'}
@@ -202,7 +202,7 @@
                                     {/if}
                                 </button>
                             </th>
-                            <th class="px-6 py-4 text-left">
+                            <th class="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 text-left">
                                 <button type="button" class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 transition hover:text-slate-900" onclick={() => toggleSort('position')}>
                                     <span>Position</span>
                                     {#if sortField === 'position'}
@@ -212,7 +212,7 @@
                                     {/if}
                                 </button>
                             </th>
-                            <th class="px-6 py-4 text-left">
+                            <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">
                                 <button type="button" class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 transition hover:text-slate-900" onclick={() => toggleSort('room_number')}>
                                     <span>Room</span>
                                     {#if sortField === 'room_number'}
@@ -222,10 +222,10 @@
                                     {/if}
                                 </button>
                             </th>
-                            <th class="hidden px-6 py-4 text-left sm:table-cell">
+                            <th class="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 text-left">
                                 <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Contact</span>
                             </th>
-                            <th class="px-6 py-4 text-left">
+                            <th class="px-3 sm:px-6 py-3 sm:py-4 text-left">
                                 <button type="button" class="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 transition hover:text-slate-900" onclick={() => toggleSort('created_at')}>
                                     <span>Requested</span>
                                     {#if sortField === 'created_at'}
@@ -238,43 +238,44 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        {#each filteredRequests() as request}
+                        {#each filteredRequests as request}
                             <tr class="transition hover:bg-slate-50/50">
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-green-500 to-emerald-600 text-sm font-semibold text-white shadow-sm">
+                                <td class="px-3 sm:px-6 py-3 sm:py-4">
+                                    <div class="flex items-center gap-2 sm:gap-3">
+                                        <div class="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-green-500 to-emerald-600 text-xs sm:text-sm font-semibold text-white shadow-sm">
                                             {getInitials(request.name)}
                                         </div>
-                                        <div>
-                                            <p class="font-medium text-slate-900">{request.name}</p>
-                                            <p class="text-xs text-slate-500 sm:hidden">{request.email || '—'}</p>
+                                        <div class="min-w-0">
+                                            <p class="font-medium text-slate-900 text-sm truncate">{request.name}</p>
+                                            <p class="text-xs text-slate-500 sm:hidden truncate">{request.position || '—'}</p>
+                                            <p class="text-xs text-slate-400 md:hidden truncate">{request.email || '—'}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                                <td class="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4">
+                                    <span class="inline-flex items-center rounded-full bg-blue-50 px-2 sm:px-2.5 py-0.5 sm:py-1 text-xs font-medium text-blue-700">
                                         {request.position || 'Not specified'}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex items-center gap-1 text-sm text-slate-700">
-                                        <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <td class="px-3 sm:px-6 py-3 sm:py-4">
+                                    <span class="inline-flex items-center gap-1 text-xs sm:text-sm text-slate-700">
+                                        <svg class="h-3 w-3 sm:h-4 sm:w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
                                         {request.room_number || '—'}
                                     </span>
                                 </td>
-                                <td class="hidden px-6 py-4 sm:table-cell">
-                                    <a href="mailto:{request.email}" class="text-sm text-slate-600 transition hover:text-green-600 hover:underline">
+                                <td class="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4">
+                                    <a href="mailto:{request.email}" class="text-xs sm:text-sm text-slate-600 transition hover:text-green-600 hover:underline truncate block max-w-[150px]">
                                         {request.email || '—'}
                                     </a>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-1.5 text-sm text-slate-500">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <td class="px-3 sm:px-6 py-3 sm:py-4">
+                                    <div class="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm text-slate-500">
+                                        <svg class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        {formatDate(request.created_at)}
+                                        <span class="whitespace-nowrap">{formatDate(request.created_at)}</span>
                                     </div>
                                 </td>
                             </tr>
@@ -284,7 +285,7 @@
             </div>
             <div class="border-t border-slate-100 bg-slate-50/50 px-6 py-3">
                 <p class="text-xs text-slate-500">
-                    Showing {filteredRequests().length} of {requests.length} request{requests.length !== 1 ? 's' : ''}
+                    Showing {filteredRequests.length} of {requests.length} request{requests.length !== 1 ? 's' : ''}
                 </p>
             </div>
         </div>

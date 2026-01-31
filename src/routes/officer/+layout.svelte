@@ -1,5 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
     import { page } from '$app/stores';
     import { supabase } from '$lib/supabaseClient.js';
     import { cn } from '$lib/utils.js';
@@ -13,7 +14,8 @@
     }
 
     let { children } = $props();
-    let drawerOpen = $state(true);
+    let drawerOpen = $state(false); // Closed by default on mobile
+    let isMobile = $state(true); // Track if on mobile
     let userName = $state('');
     let userInitials = $state('');
 
@@ -51,7 +53,15 @@
     const activeItem = $derived(navItems.find((item) => pathname.startsWith(item.href)));
 
     onMount(() => {
-        if (isAuthRoute) return;
+        // Check initial screen size and set drawer state
+        const checkMobile = () => {
+            isMobile = window.innerWidth < 1024;
+            if (!isMobile) drawerOpen = true; // Open by default on desktop
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        
+        if (isAuthRoute) return () => window.removeEventListener('resize', checkMobile);
         const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
             if (!session) {
                 goto('/officer/login');
@@ -71,6 +81,7 @@
             }
         });
         return () => {
+            window.removeEventListener('resize', checkMobile);
             authListener?.subscription?.unsubscribe();
         };
     });
@@ -96,7 +107,7 @@
 
     function iconPath(name: string): string {
         const paths: Record<string, string> = {
-            user: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',
+            user: 'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z',
             layout: 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
             package: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z M3.27 6.96L12 12l8.73-5.04 M12 22V12',
             shield: 'M12 3l8 4v5c0 5-3.5 9-8 9s-8-4-8-9V7l8-4z',
@@ -117,20 +128,17 @@
             <aside
                 id="officer-drawer"
                 class={cn(
-                    'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-slate-200 bg-white shadow-sm transition-all duration-300 lg:static',
-                    drawerOpen ? 'w-64' : 'w-16'
+                    'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-slate-200 bg-white shadow-lg transition-all duration-300',
+                    'lg:static lg:shadow-sm',
+                    drawerOpen ? 'w-64 translate-x-0' : 'w-16 -translate-x-full lg:translate-x-0'
                 )}
-                aria-hidden={false}
+                aria-hidden={!drawerOpen && isMobile}
             >
                 <!-- Sidebar Header -->
                 <div class={cn('flex items-center border-b border-slate-100', drawerOpen ? 'justify-between px-4 py-4' : 'justify-center px-2 py-4')}>
                     {#if drawerOpen}
                         <a href="/" class="flex items-center gap-2.5 no-underline">
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-green-500 to-emerald-600 shadow-sm">
-                                <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                            </div>
+                            <img src="{base}/ApiTreats.png" alt="ApiTreats Logo" class="h-8 w-8" />
                             <span class="text-lg font-bold tracking-tight text-slate-900">
                                 <span class="text-green-600">Api</span>Treats
                             </span>
@@ -244,27 +252,38 @@
             {/if}
 
             <!-- Main Content -->
-            <div class="flex min-h-screen flex-1 flex-col">
+            <div class="flex min-h-screen flex-1 flex-col lg:ml-0">
                 <!-- Top Header -->
-                <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-md shadow-sm">
-                    <div class="mx-auto flex w-full max-w-6xl items-center justify-between">
-                        <div>
-                            <h1 class="text-lg font-semibold text-slate-900">
+                <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-3 sm:px-4 py-3 backdrop-blur-md shadow-sm">
+                    <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-3">
+                        <!-- Mobile menu button -->
+                        <button
+                            type="button"
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 lg:hidden"
+                            aria-label="Open menu"
+                            onclick={toggleDrawer}
+                        >
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                        <div class="min-w-0 flex-1">
+                            <h1 class="truncate text-base sm:text-lg font-semibold text-slate-900">
                                 {activeItem ? activeItem.label : 'Officer Workspace'}
                             </h1>
                             {#if activeItem}
-                                <p class="text-xs text-slate-500">{activeItem.desc}</p>
+                                <p class="hidden sm:block text-xs text-slate-500">{activeItem.desc}</p>
                             {/if}
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="hidden text-sm text-slate-500 sm:inline">Welcome back,</span>
-                            <span class="rounded-full bg-linear-to-r from-green-50 to-emerald-50 px-3 py-1 text-sm font-medium text-green-700">{displayName}</span>
+                        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                            <span class="hidden md:inline text-sm text-slate-500">Welcome back,</span>
+                            <span class="rounded-full bg-linear-to-r from-green-50 to-emerald-50 px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium text-green-700 truncate max-w-[100px] sm:max-w-none">{displayName}</span>
                         </div>
                     </div>
                 </header>
 
                 <!-- Page Content -->
-                <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-6">
+                <main class="mx-auto w-full max-w-6xl flex-1 px-3 sm:px-4 py-4 sm:py-6 lg:px-6">
                     {@render children()}
                 </main>
             </div>
