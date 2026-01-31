@@ -45,16 +45,14 @@
                 >
                     Shop
                 </a>
-                {#if isHome}
-                    <a
-                        href="#how-it-works"
-                        class="rounded-lg px-4 py-2 text-sm font-medium no-underline transition-colors {scrolled
-                            ? 'text-slate-600 hover:bg-green-50 hover:text-green-700'
-                            : 'text-slate-700 hover:bg-white/60 hover:text-green-700'}"
-                    >
-                        How It Works
-                    </a>
-                {/if}
+                <a
+                    href="/#how-it-works"
+                    class="rounded-lg px-4 py-2 text-sm font-medium no-underline transition-colors {scrolled || !isHome
+                        ? 'text-slate-600 hover:bg-green-50 hover:text-green-700'
+                        : 'text-slate-700 hover:bg-white/60 hover:text-green-700'}"
+                >
+                    How It Works
+                </a>
             </div>
 
             <!-- CTA Buttons -->

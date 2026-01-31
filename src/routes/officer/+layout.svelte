@@ -3,18 +3,18 @@
     import { page } from '$app/stores';
     import { supabase } from '$lib/supabaseClient.js';
     import { cn } from '$lib/utils.js';
-    import Button from '$lib/components/ui/button.svelte';
     import { onMount } from 'svelte';
 
     let { children } = $props();
     let drawerOpen = $state(true);
+    let userName = $state('');
 
     const navItems = [
-        { label: 'Profile', href: '/officer/profile', icon: 'user' },
-        { label: 'Dashboard', href: '/officer/dashboard', icon: 'layout' },
-        { label: 'Inventory', href: '/officer/inventory', icon: 'package' },
-        { label: 'Admin Requests', href: '/officer/requests', icon: 'shield' },
-        { label: 'Analytics', href: '/officer/analytics', icon: 'bar' },
+        { label: 'Profile', href: '/officer/profile', icon: 'user', desc: 'Manage your account' },
+        { label: 'Dashboard', href: '/officer/dashboard', icon: 'layout', desc: 'Sales overview' },
+        { label: 'Inventory', href: '/officer/inventory', icon: 'package', desc: 'Stock management' },
+        { label: 'Admin Requests', href: '/officer/requests', icon: 'shield', desc: 'Pending approvals' },
+        { label: 'Analytics', href: '/officer/analytics', icon: 'bar', desc: 'Reports & insights' },
     ];
 
     const pathname = $derived($page.url.pathname);
@@ -30,11 +30,15 @@
         const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
             if (!session) {
                 goto('/officer/login');
+            } else {
+                userName = session.user?.user_metadata?.full_name || session.user?.email?.split('@')[0] || 'Officer';
             }
         });
         supabase.auth.getSession().then(({ data }) => {
             if (!data?.session) {
                 goto('/officer/login');
+            } else {
+                userName = data.session.user?.user_metadata?.full_name || data.session.user?.email?.split('@')[0] || 'Officer';
             }
         });
         return () => {
@@ -63,82 +67,158 @@
 </script>
 
 {#if isAuthRoute}
-    <div class="min-h-screen bg-muted/40">
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50">
         {@render children()}
     </div>
 {:else}
-    <div class="min-h-screen bg-muted/40">
+    <div class="min-h-screen bg-slate-50">
         <div class="flex min-h-screen">
+            <!-- Sidebar -->
             <aside
                 id="officer-drawer"
                 class={cn(
-                    'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-border bg-background transition-all duration-200 lg:static',
-                    drawerOpen ? 'w-64 px-4 py-6' : 'w-16 px-2 py-4'
+                    'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-slate-200 bg-white shadow-sm transition-all duration-300 lg:static',
+                    drawerOpen ? 'w-64' : 'w-16'
                 )}
                 aria-hidden={false}
             >
-                <div class={cn('mb-6 flex items-center justify-between', drawerOpen ? '' : 'px-1')}>
-                    <div class={cn('text-lg font-semibold text-primary', drawerOpen ? '' : 'sr-only')}>ApiTreats</div>
+                <!-- Sidebar Header -->
+                <div class={cn('flex items-center border-b border-slate-100', drawerOpen ? 'justify-between px-4 py-4' : 'justify-center px-2 py-4')}>
+                    {#if drawerOpen}
+                        <a href="/" class="flex items-center gap-2.5 no-underline">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 shadow-sm">
+                                <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <span class="text-lg font-bold tracking-tight text-slate-900">
+                                <span class="text-green-600">Api</span>Treats
+                            </span>
+                        </a>
+                    {/if}
                     <button
                         type="button"
-                        class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input text-muted-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        class={cn(
+                            'inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500',
+                            !drawerOpen && 'mx-auto'
+                        )}
                         aria-controls="officer-drawer"
                         aria-expanded={drawerOpen}
-                        aria-label={drawerOpen ? 'Close menu' : 'Open menu'}
+                        aria-label={drawerOpen ? 'Collapse sidebar' : 'Expand sidebar'}
                         on:click={() => (drawerOpen = !drawerOpen)}
                     >
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M3 6h18M3 12h18M3 18h18"></path>
-                        </svg>
+                        {#if drawerOpen}
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                            </svg>
+                        {:else}
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                            </svg>
+                        {/if}
                     </button>
                 </div>
-                <nav class="flex flex-col gap-1 text-sm" aria-label="Officer navigation">
+
+                <!-- Navigation -->
+                <nav class={cn('flex-1 space-y-1 py-4', drawerOpen ? 'px-3' : 'px-2')} aria-label="Officer navigation">
                     {#each navItems as item}
                         <a
                             href={item.href}
                             class={cn(
-                                'flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground',
-                                pathname.startsWith(item.href) && 'bg-accent text-accent-foreground'
+                                'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition',
+                                pathname.startsWith(item.href)
+                                    ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 shadow-sm'
+                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                             )}
                             aria-current={pathname.startsWith(item.href) ? 'page' : undefined}
                             on:click={handleNavClick}
+                            title={!drawerOpen ? item.label : undefined}
                         >
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d={iconPath(item.icon)}></path>
-                            </svg>
-                            <span class={cn(drawerOpen ? 'block' : 'sr-only')}>{item.label}</span>
+                            <div class={cn(
+                                'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition',
+                                pathname.startsWith(item.href)
+                                    ? 'bg-green-100 text-green-600'
+                                    : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700'
+                            )}>
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d={iconPath(item.icon)}></path>
+                                </svg>
+                            </div>
+                            {#if drawerOpen}
+                                <div class="flex flex-col">
+                                    <span>{item.label}</span>
+                                    <span class="text-xs font-normal text-slate-400">{item.desc}</span>
+                                </div>
+                            {/if}
                         </a>
                     {/each}
                 </nav>
-                <div class={cn('mt-auto', drawerOpen ? '' : 'px-1')}>
-                    <Button class={cn('w-full', drawerOpen ? '' : 'px-0')} variant="outline" on:click={handleLogout}>
-                        <span class={cn(drawerOpen ? 'block' : 'sr-only')}>Log Out</span>
-                        <svg class={cn('h-4 w-4', drawerOpen ? 'hidden' : 'block')} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+
+                <!-- Sidebar Footer -->
+                <div class={cn('border-t border-slate-100', drawerOpen ? 'p-4' : 'p-2')}>
+                    {#if drawerOpen}
+                        <div class="mb-3 flex items-center gap-3">
+                            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-sm font-semibold text-white">
+                                {userName.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="flex-1 truncate">
+                                <p class="truncate text-sm font-medium text-slate-900">{userName}</p>
+                                <p class="text-xs text-slate-500">Officer</p>
+                            </div>
+                        </div>
+                    {/if}
+                    <button
+                        type="button"
+                        class={cn(
+                            'flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500',
+                            drawerOpen ? 'px-4' : 'px-2'
+                        )}
+                        on:click={handleLogout}
+                    >
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                             <path d="M16 17l5-5-5-5"></path>
                             <path d="M21 12H9"></path>
                         </svg>
-                    </Button>
+                        {#if drawerOpen}
+                            <span>Log Out</span>
+                        {/if}
+                    </button>
                 </div>
             </aside>
+
+            <!-- Mobile Overlay -->
             {#if drawerOpen}
                 <button
                     type="button"
-                    class="fixed inset-0 z-20 bg-black/30 lg:hidden"
+                    class="fixed inset-0 z-20 bg-slate-900/30 backdrop-blur-sm lg:hidden"
                     aria-label="Close menu"
                     on:click={() => (drawerOpen = false)}
                 ></button>
             {/if}
+
+            <!-- Main Content -->
             <div class="flex min-h-screen flex-1 flex-col">
-                <header class="sticky top-0 z-10 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
+                <!-- Top Header -->
+                <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-md shadow-sm">
                     <div class="mx-auto flex w-full max-w-6xl items-center justify-between">
-                        <div class="text-sm font-medium text-foreground">
-                            {activeItem ? activeItem.label : 'Officer workspace'}
+                        <div>
+                            <h1 class="text-lg font-semibold text-slate-900">
+                                {activeItem ? activeItem.label : 'Officer Workspace'}
+                            </h1>
+                            {#if activeItem}
+                                <p class="text-xs text-slate-500">{activeItem.desc}</p>
+                            {/if}
                         </div>
-                        <div class="text-xs text-muted-foreground">ApiTreats</div>
+                        <div class="flex items-center gap-3">
+                            <span class="hidden text-sm text-slate-500 sm:inline">Welcome back,</span>
+                            <span class="rounded-full bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-1 text-sm font-medium text-green-700">{userName}</span>
+                        </div>
                     </div>
                 </header>
-                <main class="mx-auto flex-1 w-full max-w-6xl px-4 py-6 lg:px-6">
+
+                <!-- Page Content -->
+                <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-6">
                     {@render children()}
                 </main>
             </div>

@@ -23,7 +23,7 @@
                         </span>
                     </a>
                     <p class="text-sm text-slate-600 max-w-xs">
-                        The honesty store app for UPV Balay Kanlaon residents. Order smarter.
+                        The honesty store app for UPV Balay Apitong residents. Order smarter.
                     </p>
                 </div>
 
@@ -41,7 +41,7 @@
                 <div class="space-y-4">
                     <h4 class="text-sm font-semibold uppercase tracking-wider text-slate-900">About</h4>
                     <div class="space-y-2 text-sm text-slate-600">
-                        <p>📍 UPV Balay Kanlaon</p>
+                        <p>📍 UPV Balay Apitong</p>
                         <p>🕐 Available 24/7</p>
                         <p>✅ Honesty System</p>
                     </div>
@@ -51,7 +51,7 @@
             <!-- Bottom Bar -->
             <div class="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-6 sm:flex-row">
                 <p class="text-sm text-slate-500">
-                    © {new Date().getFullYear()} ApiTreats • UPV Balay Kanlaon
+                    © {new Date().getFullYear()} ApiTreats • UPV Balay Apitong
                 </p>
                 <p class="text-xs text-slate-400">
                     Built with 💚 for the community

@@ -1,26 +1,18 @@
-<script>
+<script lang="ts">
     import { api } from '$lib/api.js';
     import { browser } from '$app/environment';
-    import Button from '$lib/components/ui/button.svelte';
-    import Card from '$lib/components/ui/card.svelte';
-    import CardContent from '$lib/components/ui/card-content.svelte';
-    import CardDescription from '$lib/components/ui/card-description.svelte';
-    import CardFooter from '$lib/components/ui/card-footer.svelte';
-    import CardHeader from '$lib/components/ui/card-header.svelte';
-    import CardTitle from '$lib/components/ui/card-title.svelte';
-    import Input from '$lib/components/ui/input.svelte';
-    import Label from '$lib/components/ui/label.svelte';
+    import { getUserFriendlyError } from '$lib/errorMessages.js';
 
     let email = '';
     let status = '';
-    let statusType = 'info';
+    let statusType: 'info' | 'error' | 'success' = 'info';
     let submitting = false;
 
     async function requestReset() {
         status = '';
         statusType = 'info';
         if (!email.trim()) {
-            status = 'Enter your email to receive a reset link.';
+            status = 'Please enter your email address.';
             statusType = 'error';
             return;
         }
@@ -28,10 +20,10 @@
             submitting = true;
             const redirectTo = browser ? `${window.location.origin}/reset-password` : undefined;
             await api.requestPasswordReset(email.trim(), redirectTo);
-            status = 'Check your email for a reset link.';
+            status = 'Check your email for a password reset link.';
             statusType = 'success';
         } catch (err) {
-            status = err instanceof Error ? err.message : 'Reset failed.';
+            status = getUserFriendlyError(err);
             statusType = 'error';
         } finally {
             submitting = false;
@@ -39,52 +31,110 @@
     }
 </script>
 
-<header class="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
-    <nav class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:h-14 sm:flex-nowrap">
-        <div class="text-base font-semibold tracking-tight text-primary">ApiTreats</div>
+<!-- Header -->
+<header class="sticky top-0 z-10 border-b border-green-100 bg-white/95 shadow-sm backdrop-blur-md">
+    <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+        <a href="/" class="group flex items-center gap-2.5 no-underline">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 shadow-md shadow-green-200 transition-transform group-hover:scale-105">
+                <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <span class="text-lg font-bold tracking-tight text-slate-900">
+                <span class="text-green-600">Api</span>Treats
+            </span>
+        </a>
         <a
             href="/officer/login"
-            class="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            class="inline-flex h-9 items-center justify-center gap-2 rounded-lg border-2 border-slate-300 bg-white px-4 text-sm font-semibold text-slate-900 transition no-underline hover:border-slate-400 hover:bg-slate-50"
         >
-            Back to Officer Login
+            Back to Login
         </a>
     </nav>
 </header>
 
-<main class="min-h-[calc(100vh-56px)] px-4 py-10">
-    <Card class="mx-auto w-full max-w-md">
-        <CardHeader>
-            <CardTitle>Reset Password</CardTitle>
-            <CardDescription>Enter your officer email to receive a reset link.</CardDescription>
-        </CardHeader>
-        <form on:submit|preventDefault={requestReset} aria-busy={submitting}>
-            <CardContent class="space-y-4">
+<main class="min-h-[calc(100vh-56px)] bg-gradient-to-b from-white via-slate-50 to-slate-100 px-4 py-12 sm:px-6">
+    <div class="mx-auto w-full max-w-md">
+        <!-- Card -->
+        <div class="rounded-2xl border border-slate-200 bg-white/90 p-8 shadow-lg backdrop-blur-sm">
+            <!-- Header -->
+            <div class="mb-8 text-center">
+                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100">
+                    <svg class="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Forgot Password?</h1>
+                <p class="mt-2 text-sm text-slate-600">Enter your email and we'll send you a reset link</p>
+            </div>
+
+            <!-- Form -->
+            <form on:submit|preventDefault={requestReset} aria-busy={submitting} class="space-y-5">
+                <!-- Email -->
                 <div class="space-y-2">
-                    <Label for="reset-email">Email</Label>
-                    <Input
+                    <label for="reset-email" class="block text-sm font-medium text-slate-700">Email</label>
+                    <input
                         id="reset-email"
                         name="email"
                         type="email"
                         bind:value={email}
                         autocomplete="email"
+                        autofocus
                         required
+                        class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 transition hover:border-slate-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                        placeholder="you@example.com"
                     />
                 </div>
-            </CardContent>
-            <CardFooter class="flex flex-col items-start gap-3 text-left">
-                <Button class="w-full" type="submit" disabled={submitting}>
-                    {submitting ? 'Sending...' : 'Send reset link'}
-                </Button>
+
+                <!-- Status Message -->
                 {#if status}
-                    <p
-                        class={`text-sm ${statusType === 'error' ? 'text-destructive' : 'text-emerald-600'}`}
-                        role="status"
-                        aria-live="polite"
-                    >
-                        {status}
-                    </p>
+                    <div class="flex items-start gap-3 rounded-lg border p-4 {statusType === 'error' ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}" role="alert">
+                        {#if statusType === 'error'}
+                            <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-sm text-red-700">{status}</p>
+                        {:else}
+                            <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-sm text-green-700">{status}</p>
+                        {/if}
+                    </div>
                 {/if}
-            </CardFooter>
-        </form>
-    </Card>
+
+                <!-- Submit Button -->
+                <button
+                    type="submit"
+                    disabled={submitting}
+                    class="w-full rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 text-base font-semibold text-white shadow-md transition disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >
+                    {#if submitting}
+                        <span class="inline-flex items-center gap-2">
+                            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Sending...
+                        </span>
+                    {:else}
+                        Send Reset Link
+                    {/if}
+                </button>
+            </form>
+
+            <!-- Footer -->
+            <div class="mt-6 text-center text-sm">
+                <span class="text-slate-500">Remember your password?</span>
+                <a href="/officer/login" class="ml-1 font-medium text-green-600 no-underline hover:text-green-700">
+                    Sign in
+                </a>
+            </div>
+        </div>
+
+        <!-- Help Text -->
+        <p class="mt-6 text-center text-xs text-slate-500">
+            Didn't receive the email? Check your spam folder.
+        </p>
+    </div>
 </main>

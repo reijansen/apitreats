@@ -53,7 +53,7 @@
                     <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
                     <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500"></span>
                 </span>
-                UPV Balay Kanlaon
+                UPV Balay Apitong
             </div>
             
             <!-- Headline -->
@@ -64,7 +64,7 @@
             
             <!-- Subheadline -->
             <p class="relative mx-auto max-w-2xl text-lg leading-relaxed text-slate-600 sm:text-xl lg:mx-0">
-                The honesty store app for UPV Balay Kanlaon residents. Order snacks and essentials from your room. 
+                The honesty store app for UPV Balay Apitong residents. Order snacks and essentials from your room. 
                 <span class="font-medium text-slate-700">Fast checkout, live inventory, and instant receipts.</span>
             </p>
 
@@ -185,7 +185,7 @@
             </div>
             <div>
                 <h3 class="font-semibold text-slate-900">Community-run</h3>
-                <p class="mt-1 text-sm text-slate-700">Supporting UPV Balay Kanlaon residents.</p>
+                <p class="mt-1 text-sm text-slate-700">Supporting UPV Balay Apitong residents.</p>
             </div>
         </section>
     </section>
