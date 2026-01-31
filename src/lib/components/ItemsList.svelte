@@ -103,10 +103,10 @@
     }
 </script>
 
-<div class="flex flex-col h-full p-6 gap-6">
+<div class="flex flex-col h-full p-4 sm:p-6 gap-4 sm:gap-6">
     <!-- Filters Section -->
-    <div class="space-y-4">
-        <div class="grid w-full gap-3 md:grid-cols-2 xl:grid-cols-3">
+    <div class="space-y-3 sm:space-y-4">
+        <div class="grid w-full gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
             <div class="space-y-2">
                 <Label for="search-items" class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Search</Label>
                 <Input
@@ -153,17 +153,17 @@
             <p class="text-sm text-slate-500">No items match your filters.</p>
         </div>
     {:else}
-        <div class="flex-1 overflow-y-scroll rounded-lg border border-slate-200 bg-white min-h-0 shadow-sm" style="scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
+        <div class="flex-1 overflow-y-scroll rounded-lg sm:rounded-xl border border-slate-200 bg-white min-h-0 shadow-sm" style="scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
             <div class="divide-y divide-slate-200">
                 {#each sortedItems as item}
-                    <div class="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between hover:bg-slate-50 transition-colors">
-                        <div class="flex items-center gap-4 flex-1 min-w-0">
-                            <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-300 text-base font-bold text-slate-700 shadow-sm">
+                    <div class="flex flex-col gap-3 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 sm:flex-row sm:items-center sm:justify-between hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                            <div class="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-slate-100 to-slate-200 border border-slate-300 text-sm sm:text-base font-bold text-slate-700 shadow-sm">
                                 {item.name?.slice(0, 1)?.toUpperCase() || '?'}
                             </div>
                             <div class="flex-1 min-w-0">
-                                <div class="font-semibold text-slate-900 text-base truncate">{item.name}</div>
-                                <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                                <div class="font-semibold text-slate-900 text-sm sm:text-base truncate">{item.name}</div>
+                                <div class="mt-1 sm:mt-1.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
                                     <span class="inline-flex items-center rounded-full bg-slate-100 border border-slate-300 px-2.5 py-0.5 text-xs font-medium text-slate-700">
                                         {item.category_name || 'Uncategorized'}
                                     </span>
@@ -173,23 +173,23 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-4 sm:gap-6">
-                            <div class="text-base font-bold text-slate-900">{formatCurrency(item.retail_price)}</div>
+                        <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-6">
+                            <div class="text-sm sm:text-base font-bold text-slate-900">{formatCurrency(item.retail_price)}</div>
                             <div class="flex items-center rounded-lg border-2 border-slate-300 bg-white shadow-sm">
                                 <button
                                     type="button"
-                                    class="h-10 w-10 flex items-center justify-center border-r-2 border-slate-300 text-lg font-semibold text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
+                                    class="h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center border-r-2 border-slate-300 text-base sm:text-lg font-semibold text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
                                     on:click={() => handleRemoveItem(item)}
                                     aria-label={`Decrease ${item.name}`}
                                 >
                                     −
                                 </button>
-                                <div class="min-w-12 text-center text-sm font-semibold text-slate-900">
+                                <div class="min-w-10 sm:min-w-12 text-center text-sm font-semibold text-slate-900">
                                     {getQty(item.id, $cart)}
                                 </div>
                                 <button
                                     type="button"
-                                    class="h-10 w-10 flex items-center justify-center border-l-2 border-slate-300 text-lg font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+                                    class="h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center border-l-2 border-slate-300 text-base sm:text-lg font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
                                     on:click={() => handleAddItem(item)}
                                     aria-label={`Increase ${item.name}`}
                                 >

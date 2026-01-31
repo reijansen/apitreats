@@ -90,12 +90,12 @@
     }
 </script>
 
-<Card class="border border-slate-300 bg-white shadow-md h-fit lg:sticky lg:top-6 px-2">
-    <CardHeader class="border-b border-slate-200 pb-4">
-        <CardTitle class="text-lg">Purchase Details</CardTitle>
-        <CardDescription class="text-sm">Room info and cart summary</CardDescription>
+<Card class="border border-slate-300 bg-white shadow-md h-fit lg:sticky lg:top-6 rounded-lg sm:rounded-xl">
+    <CardHeader class="border-b border-slate-200 pb-3 sm:pb-4 px-4 sm:px-6">
+        <CardTitle class="text-base sm:text-lg">Purchase Details</CardTitle>
+        <CardDescription class="text-xs sm:text-sm">Room info and cart summary</CardDescription>
     </CardHeader>
-    <CardContent class="space-y-6 pt-6 px-2">
+    <CardContent class="space-y-4 sm:space-y-6 pt-4 sm:pt-6 px-4 sm:px-6">
         <div class="space-y-4">
             <div class="space-y-2">
                 <Label for="room-number" class="font-semibold text-slate-700">Room Number <span class="text-red-500">*</span></Label>
@@ -155,9 +155,9 @@
             {/if}
         </div>
     </CardContent>
-    <CardFooter class="flex flex-col gap-3 border-t border-slate-200 pt-4 px-2">
+    <CardFooter class="flex flex-col gap-3 border-t border-slate-200 pt-3 sm:pt-4 px-4 sm:px-6">
         <Button 
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-10" 
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 sm:h-10 text-sm sm:text-base" 
             type="button" 
             disabled={!canSubmit} 
             on:click={handleSubmit}

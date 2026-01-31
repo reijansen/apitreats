@@ -592,19 +592,19 @@
     }
 </script>
 
-<section class="space-y-6">
+<section class="space-y-4 sm:space-y-6">
     <Card>
-        <CardHeader class="flex flex-wrap items-start justify-between gap-4">
+        <CardHeader class="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 py-4 sm:py-5">
             <div>
-                <CardTitle>Items</CardTitle>
-                <CardDescription>Manage dorm store items and pricing.</CardDescription>
+                <CardTitle class="text-base sm:text-lg">Items</CardTitle>
+                <CardDescription class="text-xs sm:text-sm">Manage dorm store items and pricing.</CardDescription>
             </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <Button on:click={() => (showNewItemModal = true)}>Add Item</Button>
-                <Button variant="outline" on:click={() => startAdjust()}>Adjust Stock</Button>
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <Button on:click={() => (showNewItemModal = true)} class="flex-1 sm:flex-none text-sm">Add Item</Button>
+                <Button variant="outline" on:click={() => startAdjust()} class="flex-1 sm:flex-none text-sm">Adjust Stock</Button>
             </div>
         </CardHeader>
-        <CardContent class="space-y-6">
+        <CardContent class="space-y-4 sm:space-y-6 px-4 sm:px-6">
             {#if itemsError}
                 <p class="text-sm text-destructive">{itemsError}</p>
             {/if}
@@ -646,48 +646,48 @@
             {#if visibleItems().length === 0}
                 <p class="text-sm text-muted-foreground">No items match your filters.</p>
             {:else}
-                <div class="overflow-x-auto rounded-md border border-border">
-                    <table class="w-full text-sm">
+                <div class="overflow-x-auto rounded-lg sm:rounded-xl border border-border">
+                    <table class="w-full text-sm hidden sm:table">
                         <thead class="bg-muted/60 text-left">
                             <tr>
-                                <th class="px-4 py-3 font-medium">Item</th>
-                                <th class="px-4 py-3 font-medium">Stock</th>
-                                <th class="px-4 py-3 font-medium">Retail price</th>
-                                <th class="px-4 py-3 font-medium">Status</th>
-                                <th class="px-4 py-3 font-medium">Actions</th>
+                                <th class="px-3 sm:px-4 py-2 sm:py-3 font-medium text-xs sm:text-sm">Item</th>
+                                <th class="px-3 sm:px-4 py-2 sm:py-3 font-medium text-xs sm:text-sm">Stock</th>
+                                <th class="px-3 sm:px-4 py-2 sm:py-3 font-medium text-xs sm:text-sm">Price</th>
+                                <th class="px-3 sm:px-4 py-2 sm:py-3 font-medium text-xs sm:text-sm">Status</th>
+                                <th class="px-3 sm:px-4 py-2 sm:py-3 font-medium text-xs sm:text-sm">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {#each visibleItems() as item}
                                 <tr class="border-t border-border">
-                                    <td class="px-4 py-3">
-                                        <div class="font-medium">{item.name}</div>
+                                    <td class="px-3 sm:px-4 py-2 sm:py-3">
+                                        <div class="font-medium text-sm">{item.name}</div>
                                         <div class="text-xs text-muted-foreground">
                                             {item.category_name || 'Uncategorized'}
                                         </div>
                                     </td>
-                                    <td class="px-4 py-3">
+                                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm">
                                         {item.stock} {item.unit || 'pcs'}
                                     </td>
-                                    <td class="px-4 py-3">{formatCurrency(item.retail_price)}</td>
-                                    <td class="px-4 py-3">
+                                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm">{formatCurrency(item.retail_price)}</td>
+                                    <td class="px-3 sm:px-4 py-2 sm:py-3">
                                         <span class="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs">
                                             <span aria-hidden="true">?</span>
                                             <span>{item.is_active ? 'Active' : 'Archived'}</span>
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex flex-wrap gap-2">
-                                            <Button size="sm" variant="outline" on:click={() => startAdjust(item)}>
+                                    <td class="px-3 sm:px-4 py-2 sm:py-3">
+                                        <div class="flex flex-wrap gap-1 sm:gap-2">
+                                            <Button size="sm" variant="outline" on:click={() => startAdjust(item)} class="text-xs px-2 py-1">
                                                 Adjust
                                             </Button>
-                                            <Button size="sm" variant="outline" on:click={() => startRestock(item)}>
+                                            <Button size="sm" variant="outline" on:click={() => startRestock(item)} class="text-xs px-2 py-1">
                                                 Restock
                                             </Button>
-                                            <Button size="sm" on:click={() => startEdit(item)}>
+                                            <Button size="sm" on:click={() => startEdit(item)} class="text-xs px-2 py-1">
                                                 Edit
                                             </Button>
-                                            <Button size="sm" variant="secondary" on:click={() => openDetails(item)}>
+                                            <Button size="sm" variant="secondary" on:click={() => openDetails(item)} class="text-xs px-2 py-1">
                                                 Details
                                             </Button>
                                         </div>
@@ -696,6 +696,32 @@
                             {/each}
                         </tbody>
                     </table>
+                    <!-- Mobile Card Layout -->
+                    <div class="sm:hidden divide-y divide-border">
+                        {#each visibleItems() as item}
+                            <div class="p-3 space-y-3">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div>
+                                        <div class="font-medium text-sm">{item.name}</div>
+                                        <div class="text-xs text-muted-foreground">{item.category_name || 'Uncategorized'}</div>
+                                    </div>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs shrink-0">
+                                        {item.is_active ? 'Active' : 'Archived'}
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-muted-foreground">Stock: <span class="font-medium text-foreground">{item.stock} {item.unit || 'pcs'}</span></span>
+                                    <span class="font-semibold">{formatCurrency(item.retail_price)}</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <Button size="sm" variant="outline" on:click={() => startAdjust(item)} class="text-xs flex-1">Adjust</Button>
+                                    <Button size="sm" variant="outline" on:click={() => startRestock(item)} class="text-xs flex-1">Restock</Button>
+                                    <Button size="sm" on:click={() => startEdit(item)} class="text-xs flex-1">Edit</Button>
+                                    <Button size="sm" variant="secondary" on:click={() => openDetails(item)} class="text-xs flex-1">Details</Button>
+                                </div>
+                            </div>
+                        {/each}
+                    </div>
                 </div>
             {/if}
             {#if statusMessage}
@@ -717,15 +743,15 @@
     </Card>
 </section>
 {#if showNewItemModal}
-    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-        <div class="w-full max-w-3xl max-h-[calc(100vh-2rem)] overflow-y-auto">
-            <Card class="w-full">
-                <CardHeader>
-                    <CardTitle>Add item</CardTitle>
-                    <CardDescription>Define the item. Stock and cost are recorded when items are restocked.</CardDescription>
+    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-3 sm:p-4">
+        <div class="w-full max-w-3xl max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] overflow-y-auto">
+            <Card class="w-full rounded-lg sm:rounded-xl">
+                <CardHeader class="px-4 sm:px-6 py-4 sm:py-5">
+                    <CardTitle class="text-base sm:text-lg">Add item</CardTitle>
+                    <CardDescription class="text-xs sm:text-sm">Define the item. Stock and cost are recorded when items are restocked.</CardDescription>
                 </CardHeader>
-                <CardContent class="space-y-4">
-                    <div class="grid gap-3 md:grid-cols-2">
+                <CardContent class="space-y-4 px-4 sm:px-6">
+                    <div class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         <div class="space-y-2">
                             <Label for="new-name">Item name</Label>
                             <Input id="new-name" bind:value={newItem.name} />
@@ -786,7 +812,7 @@
                             <div class="mt-3 space-y-3">
                                 <div class="text-sm font-semibold">Initial stock (optional)</div>
                                 <p class="text-xs text-muted-foreground">This will create the first stock batch for this item.</p>
-                                <div class="grid gap-3 md:grid-cols-2">
+                                <div class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                                     <div class="space-y-2">
                                         <Label for="initial-qty">Quantity received</Label>
                                         <Input
@@ -832,11 +858,11 @@
                         {/if}
                     </div>
                 </CardContent>
-                <CardContent class="flex flex-wrap items-center gap-3">
-                    <Button on:click={createItem} disabled={pendingAction === 'new:save'}>
+                <CardContent class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 px-4 sm:px-6 pb-4 sm:pb-6">
+                    <Button on:click={createItem} disabled={pendingAction === 'new:save'} class="w-full sm:w-auto">
                         {pendingAction === 'new:save' ? 'Adding...' : 'Add item'}
                     </Button>
-                    <Button variant="outline" on:click={() => (showNewItemModal = false)}>
+                    <Button variant="outline" on:click={() => (showNewItemModal = false)} class="w-full sm:w-auto">
                         Cancel
                     </Button>
                 </CardContent>
@@ -846,14 +872,14 @@
 {/if}
 
 {#if showAdjustModal}
-    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-        <div class="w-full max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto">
-            <Card class="w-full">
-                <CardHeader>
-                    <CardTitle>Adjust stock</CardTitle>
-                    <CardDescription>Record count corrections or losses.</CardDescription>
+    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-3 sm:p-4">
+        <div class="w-full max-w-lg max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] overflow-y-auto">
+            <Card class="w-full rounded-lg sm:rounded-xl">
+                <CardHeader class="px-4 sm:px-6 py-4 sm:py-5">
+                    <CardTitle class="text-base sm:text-lg">Adjust stock</CardTitle>
+                    <CardDescription class="text-xs sm:text-sm">Record count corrections or losses.</CardDescription>
                 </CardHeader>
-                <CardContent class="space-y-4">
+                <CardContent class="space-y-4 px-4 sm:px-6">
                     <div class="space-y-2">
                         <Label for="adjust-item">Item</Label>
                         <Select id="adjust-item" bind:value={adjustId}>
@@ -876,11 +902,12 @@
                             <option value="expired">Expired</option>
                         </Select>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <Button
                             type="button"
                             variant={adjustDirection === 'remove' ? 'default' : 'outline'}
                             on:click={() => (adjustDirection = 'remove')}
+                            class="flex-1 sm:flex-none text-sm"
                         >
                             Reduce stock
                         </Button>
@@ -888,22 +915,23 @@
                             type="button"
                             variant={adjustDirection === 'add' ? 'default' : 'outline'}
                             on:click={() => (adjustDirection = 'add')}
+                            class="flex-1 sm:flex-none text-sm"
                         >
                             Increase stock
                         </Button>
                         {#if adjustingItem}
-                            <span class="text-sm text-muted-foreground">Current: {adjustingItem.stock}</span>
+                            <span class="text-sm text-muted-foreground text-center sm:text-left">Current: {adjustingItem.stock}</span>
                         {/if}
                     </div>
                     {#if adjustError}
                         <p class="text-sm text-destructive">{adjustError}</p>
                     {/if}
                 </CardContent>
-                <CardContent class="flex flex-wrap items-center gap-3">
-                    <Button on:click={submitAdjust} disabled={pendingAction !== ''}>
+                <CardContent class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 px-4 sm:px-6 pb-4 sm:pb-6">
+                    <Button on:click={submitAdjust} disabled={pendingAction !== ''} class="w-full sm:w-auto">
                         {pendingAction ? 'Saving...' : 'Confirm adjustment'}
                     </Button>
-                    <Button variant="outline" on:click={() => (showAdjustModal = false)}>
+                    <Button variant="outline" on:click={() => (showAdjustModal = false)} class="w-full sm:w-auto">
                         Cancel
                     </Button>
                 </CardContent>
@@ -913,15 +941,15 @@
 {/if}
 
 {#if showRestockModal && restockingItem}
-    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-        <div class="w-full max-w-2xl max-h-[calc(100vh-2rem)] overflow-y-auto">
-            <Card class="w-full">
-                <CardHeader>
-                    <CardTitle>Restock {restockingItem.name}</CardTitle>
-                    <CardDescription>Record a new batch purchase.</CardDescription>
+    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-3 sm:p-4">
+        <div class="w-full max-w-2xl max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] overflow-y-auto">
+            <Card class="w-full rounded-lg sm:rounded-xl">
+                <CardHeader class="px-4 sm:px-6 py-4 sm:py-5">
+                    <CardTitle class="text-base sm:text-lg">Restock {restockingItem.name}</CardTitle>
+                    <CardDescription class="text-xs sm:text-sm">Record a new batch purchase.</CardDescription>
                 </CardHeader>
-                <CardContent class="space-y-4">
-                    <div class="grid gap-3 md:grid-cols-2">
+                <CardContent class="space-y-4 px-4 sm:px-6">
+                    <div class="grid gap-3 grid-cols-1 sm:grid-cols-2">
                         <div class="space-y-2">
                             <Label for="restock-qty">Quantity received</Label>
                             <Input id="restock-qty" type="number" min="1" step="1" bind:value={restockForm.qty_received} />
@@ -938,7 +966,7 @@
                             <Label for="restock-expiry">Expiry date (optional)</Label>
                             <Input id="restock-expiry" type="date" bind:value={restockForm.expiry_date} />
                         </div>
-                        <div class="space-y-2 md:col-span-2">
+                        <div class="space-y-2 sm:col-span-2">
                             <Label for="restock-notes">Notes (optional)</Label>
                             <Input id="restock-notes" bind:value={restockForm.notes} />
                         </div>
@@ -947,11 +975,11 @@
                         <p class="text-sm text-destructive">{restockError}</p>
                     {/if}
                 </CardContent>
-                <CardContent class="flex flex-wrap items-center gap-3">
-                    <Button on:click={submitRestock} disabled={pendingAction !== ''}>
+                <CardContent class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 px-4 sm:px-6 pb-4 sm:pb-6">
+                    <Button on:click={submitRestock} disabled={pendingAction !== ''} class="w-full sm:w-auto">
                         {pendingAction ? 'Saving...' : 'Save batch'}
                     </Button>
-                    <Button variant="outline" on:click={() => (showRestockModal = false)}>
+                    <Button variant="outline" on:click={() => (showRestockModal = false)} class="w-full sm:w-auto">
                         Cancel
                     </Button>
                 </CardContent>
@@ -961,15 +989,15 @@
 {/if}
 
 {#if showEditPanel && editingItem}
-    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-        <div class="w-full max-w-3xl max-h-[calc(100vh-2rem)] overflow-y-auto">
-            <Card class="w-full">
-                <CardHeader>
-                    <CardTitle>Edit item</CardTitle>
-                    <CardDescription>Update item details. Stock changes use Adjust or Restock.</CardDescription>
+    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-3 sm:p-4">
+        <div class="w-full max-w-3xl max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] overflow-y-auto">
+            <Card class="w-full rounded-lg sm:rounded-xl">
+                <CardHeader class="px-4 sm:px-6 py-4 sm:py-5">
+                    <CardTitle class="text-base sm:text-lg">Edit item</CardTitle>
+                    <CardDescription class="text-xs sm:text-sm">Update item details. Stock changes use Adjust or Restock.</CardDescription>
                 </CardHeader>
-                <CardContent class="space-y-4">
-                    <div class="grid gap-4 md:grid-cols-2">
+                <CardContent class="space-y-4 px-4 sm:px-6">
+                    <div class="grid gap-4 grid-cols-1 sm:grid-cols-2">
                         <div class="space-y-2">
                             <Label for="edit-name">Item name</Label>
                             <Input id="edit-name" bind:value={editForm.name} />
@@ -1010,11 +1038,11 @@
                         </div>
                     </div>
                 </CardContent>
-                <CardContent class="flex flex-wrap items-center gap-3">
-                    <Button on:click={saveEdit} disabled={!hasEditChanges() || pendingAction !== ''}>
+                <CardContent class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 px-4 sm:px-6 pb-4 sm:pb-6">
+                    <Button on:click={saveEdit} disabled={!hasEditChanges() || pendingAction !== ''} class="w-full sm:w-auto">
                         {pendingAction ? 'Saving...' : 'Save changes'}
                     </Button>
-                    <Button variant="outline" on:click={cancelEdit}>
+                    <Button variant="outline" on:click={cancelEdit} class="w-full sm:w-auto">
                         Cancel
                     </Button>
                 </CardContent>
@@ -1024,19 +1052,19 @@
 {/if}
 
 {#if showDetailsPanel && detailsItem}
-    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-        <div class="w-full max-w-5xl max-h-[calc(100vh-2rem)] overflow-y-auto">
-            <Card class="w-full">
-                <CardHeader class="flex flex-wrap items-start justify-between gap-4">
+    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-3 sm:p-4">
+        <div class="w-full max-w-5xl max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2rem)] overflow-y-auto">
+            <Card class="w-full rounded-lg sm:rounded-xl">
+                <CardHeader class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 py-4 sm:py-5">
                     <div>
-                        <CardTitle>{detailsItem.name} details</CardTitle>
-                        <CardDescription>Batch history and recent stock movements.</CardDescription>
+                        <CardTitle class="text-base sm:text-lg">{detailsItem.name} details</CardTitle>
+                        <CardDescription class="text-xs sm:text-sm">Batch history and recent stock movements.</CardDescription>
                     </div>
-                    <Button variant="outline" on:click={() => (showDetailsPanel = false)}>
+                    <Button variant="outline" on:click={() => (showDetailsPanel = false)} class="w-full sm:w-auto">
                         Close
                     </Button>
                 </CardHeader>
-                <CardContent class="space-y-6">
+                <CardContent class="space-y-4 sm:space-y-6 px-4 sm:px-6">
                     {#if detailsLoading}
                         <p class="text-sm text-muted-foreground">Loading details...</p>
                     {:else if detailsError}
@@ -1047,25 +1075,25 @@
                             {#if detailsBatches.length === 0}
                                 <p class="text-sm text-muted-foreground">No batches recorded.</p>
                             {:else}
-                                <div class="overflow-x-auto rounded-md border border-border">
-                                    <table class="w-full text-sm">
+                                <div class="overflow-x-auto rounded-lg sm:rounded-xl border border-border">
+                                    <table class="w-full text-xs sm:text-sm">
                                         <thead class="bg-muted/60 text-left">
                                             <tr>
-                                                <th class="px-3 py-2 font-medium">Purchased</th>
-                                                <th class="px-3 py-2 font-medium">Qty remaining/received</th>
-                                                <th class="px-3 py-2 font-medium">Total cost</th>
-                                                <th class="px-3 py-2 font-medium">Unit cost</th>
-                                                <th class="px-3 py-2 font-medium">Expiry</th>
+                                                <th class="px-2 sm:px-3 py-2 font-medium">Purchased</th>
+                                                <th class="px-2 sm:px-3 py-2 font-medium">Qty</th>
+                                                <th class="px-2 sm:px-3 py-2 font-medium hidden sm:table-cell">Cost</th>
+                                                <th class="px-2 sm:px-3 py-2 font-medium hidden sm:table-cell">Unit</th>
+                                                <th class="px-2 sm:px-3 py-2 font-medium">Expiry</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {#each detailsBatches as batch}
                                                 <tr class="border-t border-border">
-                                                    <td class="px-3 py-2">{formatDate(batch.purchased_at)}</td>
-                                                    <td class="px-3 py-2">{batch.qty_remaining}/{batch.qty_received}</td>
-                                                    <td class="px-3 py-2">{formatCurrency(batch.total_cost)}</td>
-                                                    <td class="px-3 py-2">{formatCurrency(batch.unit_cost)}</td>
-                                                    <td class="px-3 py-2">{formatDate(batch.expiry_date)}</td>
+                                                    <td class="px-2 sm:px-3 py-2">{formatDate(batch.purchased_at)}</td>
+                                                    <td class="px-2 sm:px-3 py-2">{batch.qty_remaining}/{batch.qty_received}</td>
+                                                    <td class="px-2 sm:px-3 py-2 hidden sm:table-cell">{formatCurrency(batch.total_cost)}</td>
+                                                    <td class="px-2 sm:px-3 py-2 hidden sm:table-cell">{formatCurrency(batch.unit_cost)}</td>
+                                                    <td class="px-2 sm:px-3 py-2">{formatDate(batch.expiry_date)}</td>
                                                 </tr>
                                             {/each}
                                         </tbody>
@@ -1078,23 +1106,23 @@
                             {#if detailsMovements.length === 0}
                                 <p class="text-sm text-muted-foreground">No movements recorded.</p>
                             {:else}
-                                <div class="overflow-x-auto rounded-md border border-border">
-                                    <table class="w-full text-sm">
+                                <div class="overflow-x-auto rounded-lg sm:rounded-xl border border-border">
+                                    <table class="w-full text-xs sm:text-sm">
                                         <thead class="bg-muted/60 text-left">
                                             <tr>
-                                                <th class="px-3 py-2 font-medium">Time</th>
-                                                <th class="px-3 py-2 font-medium">Type</th>
-                                                <th class="px-3 py-2 font-medium">Qty</th>
-                                                <th class="px-3 py-2 font-medium">Reason</th>
+                                                <th class="px-2 sm:px-3 py-2 font-medium">Time</th>
+                                                <th class="px-2 sm:px-3 py-2 font-medium">Type</th>
+                                                <th class="px-2 sm:px-3 py-2 font-medium">Qty</th>
+                                                <th class="px-2 sm:px-3 py-2 font-medium hidden sm:table-cell">Reason</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {#each detailsMovements as movement}
                                                 <tr class="border-t border-border">
-                                                    <td class="px-3 py-2">{new Date(movement.created_at).toLocaleString()}</td>
-                                                    <td class="px-3 py-2">{movement.type}</td>
-                                                    <td class="px-3 py-2">{movement.qty_delta}</td>
-                                                    <td class="px-3 py-2">{movement.reason || 'N/A'}</td>
+                                                    <td class="px-2 sm:px-3 py-2">{new Date(movement.created_at).toLocaleDateString()}</td>
+                                                    <td class="px-2 sm:px-3 py-2">{movement.type}</td>
+                                                    <td class="px-2 sm:px-3 py-2">{movement.qty_delta}</td>
+                                                    <td class="px-2 sm:px-3 py-2 hidden sm:table-cell">{movement.reason || 'N/A'}</td>
                                                 </tr>
                                             {/each}
                                         </tbody>

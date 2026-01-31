@@ -86,10 +86,10 @@
     </nav>
 </header>
 
-<main class="min-h-[calc(100vh-56px)] bg-linear-to-b from-white via-slate-50 to-slate-100 px-4 py-12 sm:px-6">
+<main class="min-h-[calc(100vh-56px)] bg-linear-to-b from-white via-slate-50 to-slate-100 px-4 py-8 sm:py-12">
     <div class="mx-auto w-full max-w-md">
         <!-- Card -->
-        <div class="rounded-2xl border border-slate-200 bg-white/90 p-8 shadow-lg backdrop-blur-sm">
+        <div class="rounded-lg sm:rounded-2xl border border-slate-200 bg-white/90 p-6 sm:p-8 shadow-lg backdrop-blur-sm">
             <!-- Loading State -->
             {#if !ready}
                 <div class="py-8 text-center">

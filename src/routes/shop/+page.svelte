@@ -33,9 +33,9 @@
         </header>
 
         <!-- Main Content Grid -->
-        <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
+        <div class="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-[1fr_380px]">
             <!-- Items List -->
-            <section class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
+            <section class="rounded-lg sm:rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
                 <ItemsList 
                     {items} 
                     {loadingItems} 

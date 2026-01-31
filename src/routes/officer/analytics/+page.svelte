@@ -363,8 +363,8 @@
         </div>
     {:else}
         <!-- Sales Overview Cards -->
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
                 <div class="flex items-center justify-between">
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
                         <svg class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -421,9 +421,9 @@
         </div>
 
         <!-- Charts Row -->
-        <div class="grid gap-6 lg:grid-cols-2">
+        <div class="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
             <!-- Sales Trend -->
-            <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
                 <div class="mb-6 flex items-center justify-between">
                     <div>
                         <h3 class="font-semibold text-slate-900">Sales Trend</h3>
@@ -511,9 +511,9 @@
         </div>
 
         <!-- Bottom Row -->
-        <div class="grid gap-6 lg:grid-cols-2">
+        <div class="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
             <!-- Top Products -->
-            <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
                 <div class="mb-4">
                     <h3 class="font-semibold text-slate-900">Top Products</h3>
                     <p class="text-sm text-slate-500">Best selling items all-time</p>

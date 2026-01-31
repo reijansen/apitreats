@@ -116,8 +116,8 @@
 
 <section class="space-y-6">
     <!-- Profile Card -->
-    <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div class="border-b border-slate-100 px-6 py-5">
+    <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-4 sm:px-6 py-4 sm:py-5">
             <div class="flex items-center gap-4">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-green-500 to-emerald-600 text-xl font-bold text-white shadow-md">
                     {profile.name ? profile.name.charAt(0).toUpperCase() : 'O'}
@@ -129,7 +129,7 @@
             </div>
         </div>
 
-        <div class="p-6">
+        <div class="p-4 sm:p-6">
             {#if loading}
                 <div class="flex flex-col items-center justify-center py-12">
                     <div class="h-8 w-8 animate-spin rounded-full border-4 border-green-200 border-t-green-600"></div>

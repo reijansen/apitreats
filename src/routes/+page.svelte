@@ -89,11 +89,11 @@
         </header>
 
         <!-- Features Grid -->
-        <div class="grid gap-4 sm:grid-cols-3">
+        <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
             {#each features as { title, desc }}
-                <article class="rounded-xl border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition hover:border-green-200 hover:shadow-md">
-                    <h3 class="font-semibold text-slate-900">{title}</h3>
-                    <p class="mt-1 text-sm text-slate-600">{desc}</p>
+                <article class="rounded-lg sm:rounded-xl border border-slate-200 bg-white/80 p-4 sm:p-5 shadow-sm backdrop-blur-sm transition hover:border-green-200 hover:shadow-md">
+                    <h3 class="font-semibold text-sm sm:text-base text-slate-900">{title}</h3>
+                    <p class="mt-1 text-xs sm:text-sm text-slate-600">{desc}</p>
                 </article>
             {/each}
         </div>

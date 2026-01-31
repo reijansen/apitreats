@@ -29,46 +29,46 @@
 
 <!-- Header -->
 <header class="sticky top-0 z-10 border-b border-green-100 bg-white/95 shadow-sm backdrop-blur-md">
-    <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-        <a href="/" class="group flex items-center gap-2.5 no-underline">
+    <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-3 sm:px-4 lg:px-6 py-2 sm:py-3">
+        <a href="/" class="group flex items-center gap-2 sm:gap-2.5 no-underline">
             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-green-500 to-emerald-600 shadow-md shadow-green-200 transition-transform group-hover:scale-105">
                 <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
             </div>
-            <span class="text-lg font-bold tracking-tight text-slate-900">
+            <span class="hidden sm:inline text-lg font-bold tracking-tight text-slate-900">
                 <span class="text-green-600">Api</span>Treats
             </span>
         </a>
         <a
             href="/"
-            class="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-linear-to-r from-green-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-md shadow-green-200 transition-all no-underline hover:shadow-lg hover:from-green-700 hover:to-emerald-700"
+            class="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-linear-to-r from-green-600 to-emerald-600 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-white shadow-md shadow-green-200 transition-all no-underline hover:shadow-lg hover:from-green-700 hover:to-emerald-700"
         >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
-            Back to Home
+            <span class="hidden sm:inline">Back to Home</span>
         </a>
     </nav>
 </header>
 
-<main class="min-h-[calc(100vh-56px)] bg-linear-to-b from-white via-slate-50 to-slate-100 px-4 py-12 sm:px-6">
+<main class="min-h-[calc(100vh-56px)] bg-linear-to-b from-white via-slate-50 to-slate-100 px-4 py-8 sm:py-12">
     <div class="mx-auto w-full max-w-md">
         <!-- Card -->
-        <div class="rounded-2xl border border-slate-200 bg-white/90 p-8 shadow-lg backdrop-blur-sm">
+        <div class="rounded-lg sm:rounded-2xl border border-slate-200 bg-white/90 p-6 sm:p-8 shadow-lg backdrop-blur-sm">
             <!-- Header -->
-            <div class="mb-8 text-center">
-                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-green-100 to-emerald-100">
+            <div class="mb-6 sm:mb-8 text-center">
+                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-linear-to-br from-green-100 to-emerald-100">
                     <svg class="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                 </div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Officer Login</h1>
-                <p class="mt-2 text-sm text-slate-600">Sign in to manage inventory and view analytics</p>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Officer Login</h1>
+                <p class="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-600">Sign in to manage inventory and view analytics</p>
             </div>
 
             <!-- Form -->
-            <form on:submit|preventDefault={login} aria-busy={submitting} class="space-y-5">
+            <form on:submit|preventDefault={login} aria-busy={submitting} class="space-y-4 sm:space-y-5">
                 <!-- Email -->
                 <div class="space-y-2">
                     <label for="email-input" class="block text-sm font-medium text-slate-700">Email</label>

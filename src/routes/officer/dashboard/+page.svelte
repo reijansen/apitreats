@@ -98,11 +98,11 @@
     const profitPercentage = $derived(totalSales > 0 ? ((profit / totalSales) * 100).toFixed(1) : 0);
 </script>
 
-<section class="space-y-6">
+<section class="space-y-4 sm:space-y-6">
     <!-- Stats Cards -->
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Total Sales Card -->
-        <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
             <div class="flex items-center justify-between">
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
                     <svg class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

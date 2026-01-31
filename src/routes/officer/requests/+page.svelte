@@ -97,7 +97,7 @@
 
 <section class="space-y-6">
     <!-- Header Card -->
-    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-4">
                 <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/25">
@@ -124,7 +124,7 @@
 
     <!-- Search -->
     {#if !loading && !error && requests.length > 0}
-        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm">
             <div class="relative">
                 <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -132,8 +132,8 @@
                 <input
                     type="text"
                     bind:value={searchTerm}
-                    placeholder="Search by name, email, position, or room..."
-                    class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 transition focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-500/20"
+                    placeholder="Search name, email, room..."
+                    class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs sm:text-sm text-slate-900 placeholder-slate-400 transition focus:border-green-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-500/20"
                 />
             </div>
         </div>
@@ -187,7 +187,7 @@
         </div>
     {:else}
         <!-- Table -->
-        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-hidden rounded-lg sm:rounded-xl border border-slate-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
