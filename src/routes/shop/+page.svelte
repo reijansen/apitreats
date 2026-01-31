@@ -21,23 +21,21 @@
     });
 </script>
 
-<main class="min-h-screen bg-gradient-to-b from-white to-slate-100 px-4 py-8 sm:px-6 lg:px-8">
-    <!-- Header -->
-    <div class="mx-auto max-w-7xl space-y-6 mb-8">
-        <a href="/" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 hover:border-slate-400">
-            ← Back to home
-        </a>
-        <div>
-            <h1 class="text-5xl font-bold text-slate-900">Browse & Order</h1>
-            <p class="mt-3 text-lg text-slate-700">Select items and submit your order</p>
-        </div>
-    </div>
+<main class="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl space-y-8">
+        
+        <!-- Page Header -->
+        <header class="space-y-2">
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                Browse & Order
+            </h1>
+            <p class="text-slate-600">Select items below and complete your order</p>
+        </header>
 
-    <!-- Main Content -->
-    <div class="mx-auto max-w-7xl px-2">
+        <!-- Main Content Grid -->
         <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
             <!-- Items List -->
-            <div class="rounded-2xl border border-slate-300 bg-white shadow-md overflow-hidden flex flex-col">
+            <section class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
                 <ItemsList 
                     {items} 
                     {loadingItems} 
@@ -47,12 +45,13 @@
                     bind:totalQuantity 
                     bind:subtotal 
                 />
-            </div>
+            </section>
 
             <!-- Checkout Form -->
-            <div class="flex flex-col">
+            <aside class="flex flex-col">
                 <CheckoutForm {items} />
-            </div>
+            </aside>
         </div>
     </div>
 </main>
+
