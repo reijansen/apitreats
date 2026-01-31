@@ -56,17 +56,14 @@
                 <!-- Feature Cards -->
                 <div class="grid gap-4 sm:grid-cols-3">
                     <div class="rounded-xl border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:shadow-md">
-                        <div class="mb-2 text-2xl">⚡</div>
                         <div class="font-semibold text-slate-900">Instant orders</div>
                         <div class="text-sm text-slate-600">Place orders in seconds, delivered to your room.</div>
                     </div>
                     <div class="rounded-xl border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:shadow-md">
-                        <div class="mb-2 text-2xl">📦</div>
                         <div class="font-semibold text-slate-900">Live inventory</div>
                         <div class="text-sm text-slate-600">Only see items currently available at the kiosk.</div>
                     </div>
                     <div class="rounded-xl border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:shadow-md">
-                        <div class="mb-2 text-2xl">✅</div>
                         <div class="font-semibold text-slate-900">Clear totals</div>
                         <div class="text-sm text-slate-600">Get instant receipts and detailed summaries.</div>
                     </div>
@@ -100,7 +97,6 @@
                 <div class="rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
                     <div class="mb-5 flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-slate-900">Popular picks</h3>
-                        <span class="text-2xl">🔥</span>
                     </div>
                     {#if loading}
                         <div class="space-y-3">
