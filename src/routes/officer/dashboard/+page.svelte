@@ -1,41 +1,63 @@
-<script>
+<script lang="ts">
     import { api } from '$lib/api.js';
     import { connectWebSocket } from '$lib/websocket.js';
     import { getUserFriendlyError } from '$lib/errorMessages.js';
     import { onMount } from 'svelte';
 
-    let purchases = [];
-    let totalSales = 0;
-    let totalCost = 0;
-    let loading = true;
-    let error = '';
-    let realtimeStatus = 'connecting';
-    let wsHandle;
+    interface Purchase {
+        id: string;
+        room_number: string;
+        product_id?: string;
+        product_name?: string;
+        quantity: number;
+        total_amount: number;
+        cost_total: number | null;
+        created_at: string;
+    }
+
+    interface WebSocketMessage {
+        type: string;
+        data: Purchase;
+    }
+
+    interface WebSocketHandle {
+        close: () => void;
+    }
+
+    type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
+
+    let purchases = $state<Purchase[]>([]);
+    let totalSales = $state(0);
+    let totalCost = $state(0);
+    let loading = $state(true);
+    let error = $state('');
+    let realtimeStatus = $state<ConnectionStatus>('connecting');
+    let wsHandle: WebSocketHandle | null = null;
 
     onMount(() => {
         loadPurchases();
         wsHandle = connectWebSocket(
-            (message) => {
+            (message: WebSocketMessage) => {
                 if (message.type === 'new_purchase') {
                     purchases = [message.data, ...purchases];
                     totalSales += Number(message.data.total_amount || 0);
                 }
             },
-            (status) => {
+            (status: ConnectionStatus) => {
                 realtimeStatus = status;
             }
         );
         return () => wsHandle?.close();
     });
 
-    async function loadPurchases() {
+    async function loadPurchases(): Promise<void> {
         loading = true;
         error = '';
         try {
             const today = new Date().toISOString().split('T')[0];
             purchases = await api.getPurchases({ date: today });
-            totalSales = purchases.reduce((sum, p) => sum + Number(p.total_amount || 0), 0);
-            totalCost = purchases.reduce((sum, p) => sum + Number(p.cost_total || 0), 0);
+            totalSales = purchases.reduce((sum: number, p: Purchase) => sum + Number(p.total_amount || 0), 0);
+            totalCost = purchases.reduce((sum: number, p: Purchase) => sum + Number(p.cost_total || 0), 0);
         } catch (err) {
             error = getUserFriendlyError(err);
         } finally {
@@ -43,14 +65,14 @@
         }
     }
 
-    function formatTime(dateStr) {
+    function formatTime(dateStr: string | null): string {
         if (!dateStr) return '—';
         const date = new Date(dateStr);
         if (Number.isNaN(date.getTime())) return '—';
         return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     }
 
-    function formatTotal(amount) {
+    function formatTotal(amount: number | string | null): string {
         return new Intl.NumberFormat('en-PH', {
             style: 'currency',
             currency: 'PHP',
@@ -58,22 +80,22 @@
         }).format(Number(amount || 0));
     }
 
-    function getStatusColor(status) {
+    function getStatusColor(status: ConnectionStatus): string {
         if (status === 'connected') return 'bg-green-100 text-green-700';
         if (status === 'error') return 'bg-red-100 text-red-700';
         if (status === 'disconnected') return 'bg-slate-100 text-slate-600';
         return 'bg-amber-100 text-amber-700';
     }
 
-    function getStatusIcon(status) {
+    function getStatusIcon(status: ConnectionStatus): string {
         if (status === 'connected') return 'M5 13l4 4L19 7';
         if (status === 'error') return 'M6 18L18 6M6 6l12 12';
         if (status === 'disconnected') return 'M18.364 5.636a9 9 0 010 12.728m-3.536-3.536a4 4 0 010-5.656';
         return 'M12 8v4m0 4h.01';
     }
 
-    $: profit = totalSales - totalCost;
-    $: profitPercentage = totalSales > 0 ? ((profit / totalSales) * 100).toFixed(1) : 0;
+    const profit = $derived(totalSales - totalCost);
+    const profitPercentage = $derived(totalSales > 0 ? ((profit / totalSales) * 100).toFixed(1) : 0);
 </script>
 
 <section class="space-y-6">
@@ -159,7 +181,7 @@
             <button
                 type="button"
                 class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-                on:click={loadPurchases}
+                onclick={loadPurchases}
                 disabled={loading}
             >
                 <svg class={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -177,7 +199,7 @@
                 </div>
             {:else if error}
                 <div class="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4" role="alert">
-                    <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div>

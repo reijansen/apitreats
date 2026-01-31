@@ -38,7 +38,7 @@
     });
 </script>
 
-<main class="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 px-4 py-12 sm:px-6 lg:px-8">
+<main class="min-h-screen bg-linear-to-b from-white via-slate-50 to-slate-100 px-4 py-12 sm:px-6 lg:px-8">
     <section class="mx-auto max-w-7xl space-y-16">
         
         <!-- Hero Header -->
@@ -48,7 +48,7 @@
             <div class="pointer-events-none absolute -top-5 right-0 h-48 w-48 rounded-full bg-emerald-100/50 blur-2xl"></div>
             
             <!-- Status Badge -->
-            <div class="relative inline-flex items-center gap-2.5 rounded-full border border-green-200/80 bg-gradient-to-r from-white to-green-50/80 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-green-700 shadow-sm backdrop-blur-sm">
+            <div class="relative inline-flex items-center gap-2.5 rounded-full border border-green-200/80 bg-linear-to-r from-white to-green-50/80 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-green-700 shadow-sm backdrop-blur-sm">
                 <span class="relative flex h-2.5 w-2.5">
                     <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
                     <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500"></span>
@@ -58,7 +58,7 @@
             
             <!-- Headline -->
             <h1 class="relative text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
-                <span class="bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">ApiTreats</span>
+                <span class="bg-linear-to-r from-green-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">ApiTreats</span>
                 <span class="block sm:inline"> — Order smarter</span>
             </h1>
             
@@ -72,7 +72,7 @@
             <div class="relative flex flex-col gap-3 pt-2 sm:flex-row sm:justify-center lg:justify-start">
                 <a
                     href="/shop"
-                    class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 text-base font-semibold text-white shadow-lg transition hover:shadow-xl hover:from-green-700 hover:to-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                    class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-linear-to-r from-green-600 to-emerald-600 px-6 text-base font-semibold text-white shadow-lg transition hover:shadow-xl hover:from-green-700 hover:to-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                 >
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -107,7 +107,7 @@
                 <ol class="space-y-4">
                     {#each steps as { step, desc }, i}
                         <li class="flex gap-4">
-                            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-100 to-emerald-100 text-sm font-bold text-green-700">
+                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-green-100 to-emerald-100 text-sm font-bold text-green-700">
                                 {i + 1}
                             </div>
                             <div>
@@ -164,7 +164,7 @@
             <ul class="grid gap-3 sm:grid-cols-2">
                 {#each benefits as benefit}
                     <li class="flex items-start gap-3 text-sm">
-                        <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="mt-0.5 h-5 w-5 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                         <span class="text-slate-700">{benefit}</span>
@@ -174,7 +174,7 @@
         </section>
 
         <!-- Info Banner -->
-        <section class="grid gap-4 rounded-2xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-6 shadow-sm md:grid-cols-3">
+        <section class="grid gap-4 rounded-2xl border border-green-200 bg-linear-to-r from-green-50 to-emerald-50 p-6 shadow-sm md:grid-cols-3">
             <div>
                 <h3 class="font-semibold text-slate-900">For residents</h3>
                 <p class="mt-1 text-sm text-slate-700">Order anytime, pickup at the kiosk.</p>

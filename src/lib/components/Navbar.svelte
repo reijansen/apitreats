@@ -25,7 +25,7 @@
         <div class="flex h-16 items-center justify-between">
             <!-- Logo -->
             <a href="/" class="group flex items-center gap-2.5 no-underline">
-                <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-md shadow-green-200 transition-transform group-hover:scale-105">
+                <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-green-500 to-emerald-600 shadow-md shadow-green-200 transition-transform group-hover:scale-105">
                     <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
@@ -67,7 +67,7 @@
                 </a>
                 <a
                     href="/shop"
-                    class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-green-200 transition-all no-underline hover:shadow-lg hover:shadow-green-300 hover:from-green-700 hover:to-emerald-700"
+                    class="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-green-200 transition-all no-underline hover:shadow-lg hover:shadow-green-300 hover:from-green-700 hover:to-emerald-700"
                 >
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />

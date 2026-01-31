@@ -1,13 +1,25 @@
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
     import { supabase } from '$lib/supabaseClient.js';
     import { getUserFriendlyError } from '$lib/errorMessages.js';
 
-    let user = null;
+    interface User {
+        id: string;
+        email?: string;
+        user_metadata?: {
+            name?: string;
+            position?: string;
+            room_number?: string;
+        };
+    }
+
+    type StatusType = 'info' | 'error' | 'success';
+
+    let user: User | null = null;
     let loading = true;
     let error = '';
     let statusMessage = '';
-    let statusType = 'info';
+    let statusType: StatusType = 'info';
     let saving = false;
     let profileInitialized = false;
     let formErrors = {
@@ -62,12 +74,12 @@
         }
     });
 
-    function setStatus(message, type = 'info') {
+    function setStatus(message: string, type: StatusType = 'info'): void {
         statusMessage = message;
         statusType = type;
     }
 
-    async function updateDetails() {
+    async function updateDetails(): Promise<void> {
         setStatus('');
         formErrors = { name: '', position: '', room_number: '' };
         if (!profile.name.trim()) formErrors.name = 'Name is required.';
@@ -107,7 +119,7 @@
     <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div class="border-b border-slate-100 px-6 py-5">
             <div class="flex items-center gap-4">
-                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-xl font-bold text-white shadow-md">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-green-500 to-emerald-600 text-xl font-bold text-white shadow-md">
                     {profile.name ? profile.name.charAt(0).toUpperCase() : 'O'}
                 </div>
                 <div>
@@ -125,7 +137,7 @@
                 </div>
             {:else if error}
                 <div class="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4" role="alert">
-                    <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p class="text-sm text-red-700">{error}</p>
@@ -248,7 +260,7 @@
                             aria-live="polite"
                         >
                             <svg
-                                class={`mt-0.5 h-5 w-5 flex-shrink-0 ${
+                                class={`mt-0.5 h-5 w-5 shrink-0 ${
                                     statusType === 'error'
                                         ? 'text-red-500'
                                         : statusType === 'success'
@@ -286,7 +298,7 @@
                         <button
                             type="submit"
                             disabled={saving}
-                            class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                            class="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-green-600 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                         >
                             {#if saving}
                                 <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">

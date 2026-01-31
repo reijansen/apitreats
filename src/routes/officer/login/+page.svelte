@@ -31,7 +31,7 @@
 <header class="sticky top-0 z-10 border-b border-green-100 bg-white/95 shadow-sm backdrop-blur-md">
     <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         <a href="/" class="group flex items-center gap-2.5 no-underline">
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 shadow-md shadow-green-200 transition-transform group-hover:scale-105">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-green-500 to-emerald-600 shadow-md shadow-green-200 transition-transform group-hover:scale-105">
                 <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -42,7 +42,7 @@
         </a>
         <a
             href="/"
-            class="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-md shadow-green-200 transition-all no-underline hover:shadow-lg hover:from-green-700 hover:to-emerald-700"
+            class="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-linear-to-r from-green-600 to-emerald-600 px-4 text-sm font-semibold text-white shadow-md shadow-green-200 transition-all no-underline hover:shadow-lg hover:from-green-700 hover:to-emerald-700"
         >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -52,13 +52,13 @@
     </nav>
 </header>
 
-<main class="min-h-[calc(100vh-56px)] bg-gradient-to-b from-white via-slate-50 to-slate-100 px-4 py-12 sm:px-6">
+<main class="min-h-[calc(100vh-56px)] bg-linear-to-b from-white via-slate-50 to-slate-100 px-4 py-12 sm:px-6">
     <div class="mx-auto w-full max-w-md">
         <!-- Card -->
         <div class="rounded-2xl border border-slate-200 bg-white/90 p-8 shadow-lg backdrop-blur-sm">
             <!-- Header -->
             <div class="mb-8 text-center">
-                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100">
+                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-green-100 to-emerald-100">
                     <svg class="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -78,7 +78,6 @@
                         type="email"
                         bind:value={email}
                         autocomplete="username"
-                        autofocus
                         required
                         class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 transition hover:border-slate-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
                         placeholder="you@example.com"
@@ -123,7 +122,7 @@
                 <!-- Error Alert -->
                 {#if error}
                     <div class="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4" role="alert">
-                        <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <p class="text-sm text-red-700">{error}</p>
@@ -134,7 +133,7 @@
                 <button
                     type="submit"
                     disabled={submitting}
-                    class="w-full rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 text-base font-semibold text-white shadow-md transition disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    class="w-full rounded-lg bg-linear-to-r from-green-600 to-emerald-600 px-4 py-3 text-base font-semibold text-white shadow-md transition disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                 >
                     {#if submitting}
                         <span class="inline-flex items-center gap-2">
